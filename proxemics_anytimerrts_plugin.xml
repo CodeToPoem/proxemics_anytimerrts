@@ -1,0 +1,7 @@
+<library path="lib/libproxemics_anytimerrts">
+  <class name="lattice_planner/TBPlanner" type="lattice_planner::TBLatticePlanner" base_class_type="nav_core::BaseGlobalPlanner">
+    <description>
+      An implementation of a anytime dynamic RRT*/RRT planner
+    </description>
+  </class>
+</library>
