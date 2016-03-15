@@ -1,0 +1,56 @@
+<launch>
+  <!--a. sim map-->
+
+  <arg name="map_file" default="$(find mobile_safeguard_primitive)/launch/navigation/utils/maps/sim_map.yaml" />
+  <arg name="in_map_world" default="$(find mobile_safeguard_primitive)/launch/navigation/utils/maps/sim_map.world" />
+
+  <!--b. room 302-->
+<!--
+  <arg name="map_file" default="$(find mobile_safeguard_primitive)/launch/navigation/utils/maps/room_302_map.yaml" />
+  <arg name="in_map_world" default="$(find mobile_safeguard_primitive)/launch/navigation/utils/maps/room_302_map.world" />
+-->
+  <!--c. corridor-->
+<!--
+  <arg name="map_file" default="$(find human_aware_nav_launch)/maps/social_sim_env.yaml" />
+  <arg name="in_map_world" default="$(find human_aware_nav_launch)/maps/social_sim_env.world" />
+-->
+
+<!--*******************************************-->
+
+  <arg name="initial_pose_x" default="0" />
+  <arg name="initial_pose_y" default="0" />
+  <arg name="initial_pose_a" default="0" />
+
+<!--*******************************************-->
+
+  <!--<arg name="scan_topic" default="/base_scan" />-->
+
+  <!--Show robot model for esthetic reason?-->
+  <arg name="show_robot" value="true" />
+
+<!--******************************************************-->
+  <!-- launch map-->
+  <!--NOTE: remember to switch map-->
+  <!--use Stage ROS to imitate odom and laser, most importantly the Laser Scan !!-->
+  <node pkg="stage_ros" type="stageros" name="stageros" 
+        args="$(arg in_map_world)" respawn="false" output="screen"/>
+
+
+  <!--run the map server-->
+<!--  <node name="map_server" pkg="map_server" type="map_server" args="$(arg map_file)" />-->
+
+  <include file="$(find turtlebot_navigation)/launch/includes/amcl.launch.xml" >
+  <arg name="initial_pose_x" value="$(arg initial_pose_x)" />
+  <arg name="initial_pose_y" value="$(arg initial_pose_y)" />
+  <arg name="initial_pose_a" value="$(arg initial_pose_a)" />
+  </include>
+
+  <!--run move base -->
+  <include file="$(find human_aware_nav_launch)/launch/move_base.launch" />
+
+  <!--run constant velocity prediction node-->
+  <node name="constant_velocity_prediction" pkg="people_prediction" type="constant_velocity_prediction" />
+
+  <!--run Rviz-->
+  <include file="$(find human_aware_nav_launch)/launch/rviz.launch" />
+</launch>
