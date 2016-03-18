@@ -39,7 +39,7 @@
 #include <proxemics_anytimerrts/dijkstra.h>
 #include <algorithm>
 
-namespace lattice_planner {
+namespace proxemics_anytimerrts {
 
 DijkstraExpansion::DijkstraExpansion(int nx, int ny) :
   pending_(NULL),
