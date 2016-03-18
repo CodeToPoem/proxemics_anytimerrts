@@ -36,7 +36,7 @@
 
 #include<proxemics_anytimerrts/tb_lattice.h>
 
-namespace lattice_planner
+namespace proxemics_anytimerrts
 {
 
 typedef std::unordered_map < DiscreteState, State*, Hasher > state_map;

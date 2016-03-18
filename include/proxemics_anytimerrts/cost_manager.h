@@ -41,7 +41,7 @@
 #include <proxemics_anytimerrts/state.h>
 #include <proxemics_anytimerrts/motion_constraints.h>
 
-namespace lattice_planner
+namespace proxemics_anytimerrts
 {
 
 /**

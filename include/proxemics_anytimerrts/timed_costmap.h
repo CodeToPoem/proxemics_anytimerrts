@@ -45,7 +45,7 @@
 #include <pcl_conversions/pcl_conversions.h>
 #include <pcl_ros/publisher.h>
 
-namespace lattice_planner
+namespace proxemics_anytimerrts
 {
 
 /**

@@ -39,7 +39,7 @@
 
 #include <costmap_2d/costmap_2d_ros.h>
 
-namespace lattice_planner
+namespace proxemics_anytimerrts
 {
 
 /**

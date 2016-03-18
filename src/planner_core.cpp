@@ -77,18 +77,18 @@ void ProxemicsAnytimeRRTs::initialize(std::string name, costmap_2d::Costmap2DROS
     //for calling the path planning service without execution of the plan
     make_plan_srv_ =
         private_nh.advertiseService("make_plan",
-                                    &TBLatticePlanner::makePlanService, this);
+                                    &ProxemicsAnytimeRRTs::makePlanService, this);
 
     //init replanning service
     replan_service_ =
         nh.advertiseService("move_base/replan",
-                            &TBLatticePlanner::replanServiceCallback,this);
+                            &ProxemicsAnytimeRRTs::replanServiceCallback,this);
 
     path_pub_ = private_nh.advertise<nav_msgs::Path>("path", 1);
 
     costmap_ = costmap->getCostmap();
     frame_id_ = frame_id;
-    planner_ = new AStarLattice(name, costmap);
+    planner_ = new ProxemicsAnytimeRRTs(name, costmap);
 
     initialized_ = true;
     replanning_requested_ = false;

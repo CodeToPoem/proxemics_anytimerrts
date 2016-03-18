@@ -36,7 +36,7 @@
 
 #include<proxemics_anytimerrts/cost_manager.h>
 
-namespace lattice_planner
+namespace proxemics_anytimerrts
 {
 
 CostManager::CostManager(DynamicCostmap* dynamic_costmap,

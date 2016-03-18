@@ -37,7 +37,7 @@
 #ifndef _VELOCITY_H
 #define _VELOCITY_H
 
-namespace lattice_planner
+namespace proxemics_anytimerrts
 {
 
 /**

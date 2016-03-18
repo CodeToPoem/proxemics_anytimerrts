@@ -56,7 +56,7 @@
 // potential defs
 #define POT_HIGH 1.0e10        // unassigned cell potential
 
-namespace lattice_planner
+namespace proxemics_anytimerrts
 {
 
 /**

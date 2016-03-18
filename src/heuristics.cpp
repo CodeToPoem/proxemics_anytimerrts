@@ -36,7 +36,7 @@
 
 #include<proxemics_anytimerrts/heuristics.h>
 
-namespace lattice_planner
+namespace proxemics_anytimerrts
 {
 
 Heuristics::Heuristics(DynamicCostmap *costmap,

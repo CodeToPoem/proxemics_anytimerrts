@@ -44,7 +44,7 @@
 #include <proxemics_anytimerrts/motion_constraints.h>
 #include <proxemics_anytimerrts/dynamic_costmap.h>
 
-namespace lattice_planner
+namespace proxemics_anytimerrts
 {
 
 /**

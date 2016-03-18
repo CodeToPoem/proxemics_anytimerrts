@@ -36,7 +36,7 @@
 
 #include <proxemics_anytimerrts/state_discretizer.h>
 
-namespace lattice_planner
+namespace proxemics_anytimerrts
 {
 
 StateDiscretizer::StateDiscretizer(DynamicCostmap *costmap,

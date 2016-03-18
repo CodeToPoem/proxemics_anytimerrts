@@ -71,7 +71,19 @@ include_directories(
   ${CMAKE_CURRENT_SOURCE_DIR}/src/
   ${CMAKE_CURRENT_SOURCE_DIR}
 )
-
+set(SOCNAV 
+    include/${PROJECT_NAME}/pose.h
+    include/${PROJECT_NAME}/velocity.h
+    include/${PROJECT_NAME}/discrete_state.h
+    include/${PROJECT_NAME}/state.h
+    include/${PROJECT_NAME}/heuristics.h
+    include/${PROJECT_NAME}/state_discretizer.h
+    include/${PROJECT_NAME}/trajectory_rollout.h
+    include/${PROJECT_NAME}/hasher.h
+#    include/${PROJECT_NAME}/Path.h
+    include/${PROJECT_NAME}/cost_manager.h
+    include/${PROJECT_NAME}/dynamic_costmap.h
+   )
 set(SOURCES_RRT
 #    src/
      include/${PROJECT_NAME}/anytimerrts_planner.h
@@ -89,7 +101,7 @@ set(SOURCES
 add_library(
   ${PROJECT_NAME}
     src/planner_core.cpp
-    src/tb_lattice.cpp
+#    src/tb_lattice.cpp
     src/cost_manager.cpp
     src/trajectory_rollout.cpp
     src/heuristics.cpp
@@ -97,6 +109,7 @@ add_library(
     src/state_discretizer.cpp
     ${SOURCES_RRT}
     ${SOURCES}
+    ${SOCNAV}
 )
 
 add_dependencies(${PROJECT_NAME} ${PROJECT_NAME}_gencpp)

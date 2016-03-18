@@ -41,7 +41,7 @@
 #include<proxemics_anytimerrts/velocity.h>
 #include<proxemics_anytimerrts/discrete_state.h>
 
-namespace lattice_planner
+namespace proxemics_anytimerrts
 {
 
 /**

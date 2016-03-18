@@ -36,7 +36,7 @@
 
 #include<proxemics_anytimerrts/trajectory_rollout.h>
 
-namespace lattice_planner
+namespace proxemics_anytimerrts
 {
 
 TrajectoryRollout::TrajectoryRollout(MotionConstraints motion_constraints) :

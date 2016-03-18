@@ -37,7 +37,7 @@
 #ifndef HASHER_H
 #define HASHER_H
 
-namespace lattice_planner
+namespace proxemics_anytimerrts
 {
 
 /**

@@ -40,7 +40,7 @@
 #include<geometry_msgs/PoseStamped.h>
 #include<tf/tf.h>
 
-namespace lattice_planner
+namespace proxemics_anytimerrts
 {
 
 /**

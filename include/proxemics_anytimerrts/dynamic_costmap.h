@@ -42,7 +42,7 @@
 #include <pluginlib/class_loader.h>
 #include <proxemics_anytimerrts/dynamic_layers.h>
 
-namespace lattice_planner
+namespace proxemics_anytimerrts
 {
 
 /**
@@ -71,7 +71,7 @@ public:
                  ros::Duration time_resolution, std::string dynamic_layers_plugin) :
     static_map_(static_map),
     time_resolution_(time_resolution),
-    dl_loader_("lattice_planner", "lattice_planner::DynamicLayers")
+    dl_loader_("proxemics_anytimerrts", "proxemics_anytimerrts::DynamicLayers")
 
   {
     //load the plugin for the dynamic layers
@@ -218,8 +218,8 @@ public:
 protected:
 
   costmap_2d::Costmap2DROS* static_map_; ///< static layer
-  pluginlib::ClassLoader<lattice_planner::DynamicLayers> dl_loader_;
-  boost::shared_ptr<lattice_planner::DynamicLayers> dynamic_layers_; ///< dynamic layers, defined as plugin
+  pluginlib::ClassLoader<proxemics_anytimerrts::DynamicLayers> dl_loader_;
+  boost::shared_ptr<proxemics_anytimerrts::DynamicLayers> dynamic_layers_; ///< dynamic layers, defined as plugin
   ros::Duration time_resolution_; ///< time resolution of dynamic layers
 
 private:

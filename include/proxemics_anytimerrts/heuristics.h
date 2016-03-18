@@ -45,7 +45,7 @@
 #include <nav_msgs/OccupancyGrid.h>
 #include <ros/ros.h>
 
-namespace lattice_planner
+namespace proxemics_anytimerrts
 {
 
 /**

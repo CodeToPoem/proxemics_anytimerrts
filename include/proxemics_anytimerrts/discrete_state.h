@@ -37,7 +37,7 @@
 #ifndef _DISCRETESTATE_H
 #define _DISCRETESTATE_H
 
-namespace lattice_planner
+namespace proxemics_anytimerrts
 {
 
 /**

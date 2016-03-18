@@ -10,7 +10,7 @@
 
 #include <smp/components/collision_checkers/base.h>
 
-#include <srl_global_planner/costmap_model.h>
+#include <proxemics_anytimerrts/costmap_model.h>
 #include <geometry_msgs/Point.h>
 
 #include <smp/common/region.h>

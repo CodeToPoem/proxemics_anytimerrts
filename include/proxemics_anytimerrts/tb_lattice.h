@@ -64,7 +64,7 @@
 #define SQRT2 1.414213562
 //#define DEBUG
 
-namespace lattice_planner
+namespace proxemics_anytimerrts
 {
 
 /**

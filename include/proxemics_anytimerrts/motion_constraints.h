@@ -37,7 +37,7 @@
 #ifndef MOTIONCONSTRAINTS_H_
 #define MOTIONCONSTRAINTS_H_
 
-namespace lattice_planner
+namespace proxemics_anytimerrts
 {
 
 /**
