@@ -97,6 +97,10 @@ set(SOURCES
     include/${PROJECT_NAME}/cell.cpp    
    )
 
+# RRT PLANNER
+## Declare KdTree lib
+add_library(SRLGLOBALPLANNER_KDTREE_LIB ${CMAKE_CURRENT_SOURCE_DIR}/include/smp/external_libraries/kdtree/kdtree.c)
+
 # Plugin
 add_library(
   ${PROJECT_NAME}

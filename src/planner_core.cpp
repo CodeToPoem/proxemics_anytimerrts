@@ -88,7 +88,7 @@ void ProxemicsAnytimeRRTs::initialize(std::string name, costmap_2d::Costmap2DROS
 
     costmap_ = costmap->getCostmap();
     frame_id_ = frame_id;
-    planner_ = new ProxemicsAnytimeRRTs(name, costmap);
+    planner_ = new AnytimeDynamicRRTs(name, costmap);
 
     initialized_ = true;
     replanning_requested_ = false;
