@@ -1,13 +1,13 @@
 <launch>
   <!--a. sim map-->
 
-  <arg name="map_file" default="$(find mobile_safeguard_primitive)/launch/navigation/utils/maps/sim_map.yaml" />
-  <arg name="in_map_world" default="$(find mobile_safeguard_primitive)/launch/navigation/utils/maps/sim_map.world" />
+  <arg name="map_file" default="$(find proxemics_anytimerrts)/maps/sim_map.yaml" />
+  <arg name="in_map_world" default="$(find proxemics_anytimerrts)/maps/sim_map.world" />
 
   <!--b. room 302-->
 <!--
-  <arg name="map_file" default="$(find mobile_safeguard_primitive)/launch/navigation/utils/maps/room_302_map.yaml" />
-  <arg name="in_map_world" default="$(find mobile_safeguard_primitive)/launch/navigation/utils/maps/room_302_map.world" />
+  <arg name="map_file" default="$(find proxemics_anytimerrts)/maps/room_302_map.yaml" />
+  <arg name="in_map_world" default="$(find proxemics_anytimerrts)/maps/room_302_map.world" />
 -->
   <!--c. corridor-->
 <!--

@@ -157,17 +157,21 @@ void AnytimeDynamicRRTs::reset() {
 bool AnytimeDynamicRRTs::findReplanningWaypoint(ros::Time plan_release_time,
                               geometry_msgs::PoseStamped& replanning_start_pose,
                               geometry_msgs::Twist& replanning_start_vel){
+// TODO
 }
 
 void AnytimeDynamicRRTs::expandCircleAtStart(State* start) {
+// TODO
 }
 
 bool AnytimeDynamicRRTs::addState(State *state) {
+// TODO
 }
 
 bool AnytimeDynamicRRTs::getPath(geometry_msgs::PoseStamped start,
                            geometry_msgs::PoseStamped goal, bool replanning,
                            std::vector<geometry_msgs::PoseStamped>& path) {
+// TODO
 }
 
 
