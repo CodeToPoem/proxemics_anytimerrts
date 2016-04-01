@@ -64,7 +64,12 @@ window
 ( 
   size [ 850.000 1000.000 ] 
   rotate [ 0.000 0 ]
+<<<<<<< HEAD
 #  scale 30.0 
+=======
+  scale 30.0 
+
+>>>>>>> 102d9d4d1f1de82fa3366b019d47c7d708d62dab
 )
 
 # load an environment bitmap

@@ -251,6 +251,280 @@ public:
    */
   bool getPath(geometry_msgs::PoseStamped start, geometry_msgs::PoseStamped goal,
                bool replanning, std::vector<geometry_msgs::PoseStamped>& path);
+
+   /**
+   * @brief plan a kinodynamic path using RRT
+   * @param, traj Trajectory generated
+   * @param, type of motion planner to use
+   * @param, start pose
+   * @return true, if the plan was found
+   */
+   int plan(Trajectory *traj, int type, geometry_msgs::PoseStamped& start);  
+
+/// *****************************************************************************
+/// RRT Planner's parameters
+/// *****************************************************************************
+    double cellwidth_;  ///<  @brief Cell width
+
+    double cellheight_; ///<  @brief Cell height
+
+    base_local_planner::CostmapModel* world_model_; ///<  @brief World Model associated to the costmap
+
+    std::vector<geometry_msgs::Point> footprint_spec_; ///< @brief FootPrint list of points of the robot
+
+    costmap_2d::Costmap2DROS* costmap_ros_; ///< @brief The ROS wrapper for the costmap the controller will use
+
+    costmap_2d::Costmap2D* costmap_; ///< @brief The ROS wrapper for the costmap the controller will use
+
+    std::string node_name_;  ///<  @brief Node name
+
+    Grid_planner *grid_planner_; ///<  @brief Grid Planner that searches a discrete path
+
+    double goal_x_; ///<  @brief x coordinate of the goal pose
+
+    double goal_y_; ///<  @brief y coordinate of the goal pose
+
+    double goal_theta_; ///<  @brief yaw angle of the goal pose
+
+    double toll_goal_; ///<  @brief toll the goal region
+
+
+    double rx,ry,rz; ///<  @brief robot coordinates
+
+    int Nit_; ///<  @brief  Number of max iterations
+
+
+    Trajectory *trajectory_; ///<  @brief Keep the path locally
+
+    /// Size of the scene
+    double xscene_; ///<  @brief Width of the scene in meters
+
+    double yscene_; ///<  @brief Height of the scene in meters
+
+    int n_hum_; ///<  @brief number of the humans in the scene (to use when the social cost need to be added)
+
+    double hposes_[HUMANMAX][3]; ///<  @brief  humans in the scene
+
+
+    std::vector<Tpoint> tree_; ///<  @brief tree and expansions occured
+
+    std::vector<size_t> nexpasions_; ///<  @brief expansions done in the tree
+
+    float numVertices_; ///<  @brief Number of iterations
+
+    float timeIter_; ///<  @brief Time per iteration
+
+    float timeSolution_; ///<  @brief Time to find a solution iteration
+
+    double nrew_;  ///<  @brief Number of rewiring per iteration
+
+    double xsupp_; ///<  @brief Width of the support
+
+    double ysupp_;///<  @brief Width of the support
+
+    std::vector<Tobstacle> obstacle_positions; ///<  @brief Obstacles
+
+
+    int TIMECOUNTER ; ///<  @brief Flag to terminate the iterations after a certain amount of seconds
+
+    int FIRSTSOLUTION ;  ///<  @brief Flag to stop the planner once you found the first solution
+
+    int DEB_RRT; ///<  @brief If you want to show all the debug info
+
+    int BOX; ///<  @brief  One if you want to select the neighbours in a Box which respects the diff-drive kinematics
+
+    double RADIUS; ///<  @brief Radius where to select the nearest vertex in plane RRT
+
+    bool goal_init_; ///<  @brief Flag that indicates if the goal is initialized
+
+    double curr_cost_; ///<  @brief Current cost
+
+    int no_fails;  ///<  @brief Number of fails
+
+    double MAXTIME; ///<  @brief Max time of iterations for planning
+
+    int NUMBER_UPDATE_TRAJ; ///<  @brief Number of times the planner improves the trajectory
+
+    int NOANIM; ///<  @brief Activate Publishing markers
+
+    int DISPLAY_METRICS; ///<  @brief Displaying metrics currently not used
+
+    int first_sol; ///<  @brief First solution flag, not used currently
+
+    int SELECT_FUNC; ///<  @brief To select different cost function in min_time_reachability, currently not used
+
+    int WHATTOSHOW; ///<  @brief Selects what kind of info to display in Rviz
+
+    int BRANCHBOUND; ///<  @brief Selects Branching and Bounding of the tree
+
+    double THRS_BRANCHBOUND;  ///<  @brief Thrs for Branching and Bounding of the tree
+
+    int BRANCHBOUND_RATIO; ///<  @brief Ratio for Branching and Bounding of the tree
+
+    int GOAL_BIASING; ///<  @brief Flag to activate Goal Biasing
+
+    double GOAL_BIASING_THS; ///<  @brief Goal Biasing THRS
+
+    int COST_DISPLAY; ///<  @brief To display cost not used currently
+
+    double RHO; ///<  @brief Stopping distance of the POSQ extend function
+
+    double DT; ///<  @brief Integration time stamp for the POSQ extender
+
+    double L_AXIS; ///<  @brief Axis length of the robot
+
+    int READ_AGENTS; ///<  @brief If consider agents in the planner
+
+    double SCALING_IRL; ///<  @brief To scale IRL currently not used
+
+    geometry_msgs::Pose start_pose_; ///<  @brief Start pose
+
+    geometry_msgs::Pose goal_pose_; ///<  @brief Goal pose
+
+    //
+    int PARALLEL; ///<  @brief Parallelize collision checker (only rectangular colllision checker)
+
+    int K; ///<  @brief K nearest obstacles to consider in Collision checkin  (only rectangular colllision checker)
+
+    double RAD_OBST; ///<  @brief Radius of the nearest neighbors to consider in Collision checkin  (only rectangular colllision checker)
+
+    double robot_width_; ///<  @brief robot width
+
+    double robot_length_; ///<  @brief robot length
+
+    double collision_boundary; ///<  @brief enlarge the size of the robot
+
+    std::string cost_file_name; ///<  @brief file where to save te costs
+
+    //
+    ros::Time begin; ///<  @brief fMap loading only during the first Nsecs
+
+    double initialization_time; ///<  @brief initialization time for map
+
+    double map_loading_time; ///<  @brief map loading time
+
+    double max_map_loading_time; ///<  @brief max map loading time
+
+    int cnt_map_readings; ///<  @brief counter of map readings
+
+    double agents_size_; ///<  @brief Number of Agents
+
+    double xmin_; ///<  @brief xmin for the grid
+
+    double xmax_; ///<  @brief xmax for the grid
+
+    double ymin_; ///<  @brief ymin for the grid
+
+    double ymax_; ///<  @brief ymax for the grid
+
+    int typepar; ///<  @brief type of the planner to use
+
+    double inscribed_radius_; ///<  @brief inscribed radius for the robot shape
+
+    double circumscribed_radius_ ; ///<  @brief circumscribe radius for the robot shape
+
+    ///
+    trajectory_t *support_; ///<  @brief Path to be used to generate the sampler support
+
+    trajectory_t *support_bias_; ///<  @brief Path to be used to generate the sampler support
+
+    int TYPE_SAMPLING;  ///<  @brief choose type of sampling
+
+    int EXT_SIGMAS; ///<  @brief In case of Gaussian sampling load external sigmas
+
+    int NUMBER_RUNS; ///<  @brief How many times to run the planner
+
+    double sigmaxi_; ///<  @brief Sigma along the x axis
+
+    double sigmayi_; ///<  @brief Sigma along the y axis
+
+
+    double computed_sigma_x_; ///<  @brief Computed Sigma along the x axis
+
+    double computed_sigma_y_; ///<  @brief Computed Sigma along the y axis
+
+    double width_strip_; ///<  @brief Width of the Theta* sampling support
+
+
+    int LEARNED; ///<  @brief Learned distance metric
+
+    int FINDNEAREST; ///<  @brief find nearest vertex in RRT
+
+    int NOTLEARNED;  ///<  @brief Not Learned distance metric
+
+    int ONLYTHETACOST; ///<  @brief Consider only the Theta* cost
+
+    double Kd; ///<  @brief Gain for Theta* cost
+
+    int ADD_COST_THETASTAR; ///<  @brief Add theta* cost
+
+    int AVERAGING; ///<  @brief Averaging among multiple segments
+
+    double OR_RANGE; ///<  @brief Define orientation ranges for theta* sampling
+
+    int MODEL_COST; ///<  @brief Type of cost to consider in the distance metrics
+
+    double Kround; ///<  @brief Gain in Theta* Distance Metric
+
+    double Kdist; ///<  @brief Gain in Theta* Distance Metric
+
+    double Kth; ///<  @brief Gain in Theta* Distance Metric
+
+    double Kor; ///<  @brief Gain in Theta* Distance Metric
+
+    double Kangle; ///<  @brief Gain in Theta* Distance Metric
+
+    double BIAS_PROB; ///<  @brief Probability of Classic Path Biasing technique
+
+    double DISPERSION; ///<  @brief Dispersion in the Classic Path Biasing technique
+
+    int n_dis_traj; ///<  @brief Number of points where to compute the Distance Metric (Not used at the moment)
+
+    double LMAX; /// Thresold for the trapezoid function in the linear combination for the weights in the  Theta* Sampling
+
+    int SRCPARENT;  ///<  @brief if to check for short cut in RRT connection (not used)
+
+    bool initialized_; ///<  @brief check if the global planner is initialized
+
+    int cnt_make_plan_; ///<  @brief counter of planning calls
+
+    int TYPEPLANNER; ///<  @brief type of the planner to use
+
+    std::string costmap_frame_;  ///<  @brief costmap frame
+
+    std::string planner_frame_; ///<  @brief planner frame
+
+    bool ADD_COST_FROM_COSTMAP; ///<  @brief Choose if to add cost from costmap
+
+    int ADD_COST_PATHLENGTH; ///<  @brief Choose if to add cost associated to path length and changes of heading
+
+    int LEVEL_OBSTACLE_; ///<  @brief Minimum cell cost to have to accept a cell as obstacle
+
+    double GB_ORIENT_; ///<  @brief Size of the Orientation range during goal biasing
+
+    double width_map_;  ///<  @brief Width of the 2D space where to sample
+
+    double height_map_; ///<  @brief Height of the 2D space where to sample
+
+    double center_map_x_; ///<  @brief x coordinate of the center of 2D space where to sample
+
+    double center_map_y_; ///<  @brief y coordinate of the center of 2D space where to sample
+
+    int cnt_no_plan_; ///<  @brief counter of no planning sol
+
+/// ************************RRT Planner's parameters ****************************
+
+
+/************************ ANYTIMERRT EXCLUSIVE ZONE !! *************************/
+
+    double selCost ;
+    
+    double cost_bound ;
+    double dist_bias ;   // distance bias, known as T.db in the paper
+    double cost_bias ;   // cost bias, known as T.cb in the paper
+    double delta_d, delta_c ; // decreasing dist_bias by a δd each iteration and increasing cost by δc
+    double epsilon_f ;   // each succesive solution was guaranteed to be epsilon_f less costly than the previous solution.
+/************************ END OF ANYTIMERRT DEFINITIONS *************************/  
 	  
 private:
 
@@ -298,10 +572,9 @@ private:
   bool easy_turn_at_goal_; ///< flag for simplified planning of turn in place at the goal
 
   //properties of current path finding run
-  Pose start_pose_; ///< start pose for planning
-  Pose goal_pose_; ///< desired goal pose
+///  Pose start_pose_; ///< start pose for planning
+///  Pose goal_pose_; ///< desired goal pose
   ros::Time path_time_; ///< time at which the path is released (after planning_timeout)
-  ///lattice_planner::Path current_plan_; ///< last planned path
   proxemics_anytimerrts::Path current_plan_ ;  ///< last planned path
   nav_msgs::Path expanded_paths_; ///< paths expanded during search
   bool planning_timed_out_; ///< whether the planning is timed out
@@ -328,6 +601,29 @@ private:
   ros::Publisher all_expanded_pub_; ///< debug publisher for all already expanded states
   bool debug_no_interrupt_; ///< flag to stop debugging step by step
 	 
+/// ************************************************************************************************
+/// RRT planner's parameters
+/// ************************************************************************************************
+    // Publishers
+    ros::Publisher pub_path_;    // WARNING: TO PUBLISH A PATH
+    ros::Publisher pub_goal_;
+    ros::Publisher pub_tree_;
+    ros::Publisher pub_tree_dedicated_;
+    ros::Publisher pub_path_dedicated_;
+    ros::Publisher pub_samples_;
+    ros::Publisher pub_graph_;
+    ros::Publisher pub_no_plan_;
+    ros::Publisher pub_obstacle_markers_;
+
+    // ros::Publisher pub_sensor_range_;
+    // subscribers
+    ros::Subscriber sub_obstacles_;    // to read the obstacles' positions
+    ros::Subscriber sub_all_agents_;   // to read the agents' poses AND   to read the current robot pose
+    ros::Subscriber sub_goal_;
+    ros::Subscriber sub_daryl_odom_;
+    
+    
+/// ************************************************************************************************	 
 } ;
  
 } // namespace proxemics_anytimerrts
