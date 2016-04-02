@@ -26,9 +26,9 @@ Timed Elastic Band: teb_local_planner/TebLocalPlannerROS
 <!-- ******* 2. Choose simultion scene ******** -->
 <!--1. corridor-->
 <!--
-<arg name="in_env" default="$(find social_nav_simulation)/gazebo/worlds/social_sim_env.world"/>
+<arg name="in_env" default="$(find proxemics_anytimerrts)/maps/gazebo_map/social_sim_env.world"/>
 
-<arg name="map_file" default="$(find human_aware_nav_launch)/maps/social_sim_env.yaml" />
+<arg name="map_file" default="$(find hproxemics_anytimerrts)/maps/gazebo_map/social_sim_env.yaml" />
 -->
 
 <!--2. sim_world-->
