@@ -1,0 +1,396 @@
+<launch>
+<!--
+beebot_gazebo_plan_sim.launch
+
+This launch file loads the environment into Gazebo,
+calls in NTU Beebot, and fires up motion planner
+-->
+
+<!-- ******* 1. Choose planner types ******* -->
+<!--
+Global planners:
+AD*: SBPLLatticePlanner
+ADRRT*: anytimeRRTs/AnytimeRRTsROS
+Social Aware ADRRT*: proxemics_anytimerrts/ProxemicsAnytimeRRTs
+lattice_planner: lattice_planner/TBPlanner
+
+Local Planners:
+Dynamic Window Algorithm: dwa_local_planner/DWAPlannerROS
+path follower: path_executer/PathFollower
+Timed Elastic Band: teb_local_planner/TebLocalPlannerROS
+-->
+<arg name="global_planner" default="lattice_planner/TBPlanner"/>
+<arg name="local_planner" default="dwa_local_planner/DWAPlannerROS" />
+
+
+<!-- ******* 2. Choose simultion scene ******** -->
+<!--1. corridor-->
+<!--
+<arg name="in_env" default="$(find social_nav_simulation)/gazebo/worlds/social_sim_env.world"/>
+
+<arg name="map_file" default="$(find human_aware_nav_launch)/maps/social_sim_env.yaml" />
+-->
+
+<!--2. sim_world-->
+
+<arg name="in_env" default="$(find proxemics_anytimerrts)/maps/gazebo_map/my_2nd_test_map.world"/>
+<arg name="map_file" default="$(find proxemics_anytimerrts)/maps/gazebo_map/sim_map.yaml" />
+
+<!-- ********* Gazebo & Rviz ********* -->
+<include file="$(find simulation_tobot)/beebot_control/launch/beebot_control.launch">
+  <arg name="world_file" value="$(arg in_env)" />
+  <arg name="rvizconfig" value="$(find human_aware_nav_launch)/config/rviz_config.rviz" />
+  
+   <remap from="scan" to="/base_scan" />
+</include>
+
+<!-- ********* add a base_footprint frame ****** -->
+<!--odom -> base_footprint-->
+<node pkg="tf" type="static_transform_publisher"
+      name="odom_base_footprint_broadcaster"
+      args="0 0 0 0 0 0 /odom /base_footprint 100"/>
+
+<!--base_footprint -> base_link-->
+<node pkg="tf" type="static_transform_publisher"
+      name="base_footprint_base_link_broadcaster"
+      args="0 0 0.065 0 0 0 /base_footprint /base_link 100"/>
+
+
+<!-- ******** map_server *******-->
+<node name="map_server" type="map_server" pkg="map_server" 
+      args="$(arg map_file)" />
+
+<!-- ******** AMCL *************-->
+  <arg name="use_map_topic"   default="true"/>
+  <arg name="scan_topic"      default="beebot/laser/scan"/> 
+  <arg name="initial_pose_x"  default="0.0"/>
+  <arg name="initial_pose_y"  default="0.0"/>
+  <arg name="initial_pose_a"  default="0.0"/>
+  <arg name="odom_frame_id"   default="odom"/>
+  <arg name="base_frame_id"   default="base_footprint"/>
+  <arg name="global_frame_id" default="map"/>
+
+  <node pkg="amcl" type="amcl" name="amcl">
+    <param name="use_map_topic"             value="$(arg use_map_topic)"/>
+    <!-- Publish scans from best pose at a max of 10 Hz -->
+    <param name="odom_model_type"           value="diff"/>
+    <param name="odom_alpha5"               value="0.1"/>
+    <param name="gui_publish_rate"          value="10.0"/>
+    <param name="laser_max_beams"             value="60"/>
+    <param name="laser_max_range"           value="12.0"/>
+    <param name="min_particles"             value="500"/>
+    <param name="max_particles"             value="2000"/>
+    <param name="kld_err"                   value="0.05"/>
+    <param name="kld_z"                     value="0.99"/>
+    <param name="odom_alpha1"               value="0.2"/>
+    <param name="odom_alpha2"               value="0.2"/>
+    <!-- translation std dev, m -->
+    <param name="odom_alpha3"               value="0.2"/>
+    <param name="odom_alpha4"               value="0.2"/>
+    <param name="laser_z_hit"               value="0.5"/>
+    <param name="laser_z_short"             value="0.05"/>
+    <param name="laser_z_max"               value="0.05"/>
+    <param name="laser_z_rand"              value="0.5"/>
+    <param name="laser_sigma_hit"           value="0.2"/>
+    <param name="laser_lambda_short"        value="0.1"/>
+    <param name="laser_model_type"          value="likelihood_field"/>
+    <!-- <param name="laser_model_type" value="beam"/> -->
+    <param name="laser_likelihood_max_dist" value="2.0"/>
+    <param name="update_min_d"              value="0.25"/>
+    <param name="update_min_a"              value="0.2"/>
+    <param name="odom_frame_id"             value="$(arg odom_frame_id)"/> 
+    <param name="base_frame_id"             value="$(arg base_frame_id)"/> 
+    <param name="global_frame_id"           value="$(arg global_frame_id)"/>
+    <param name="resample_interval"         value="1"/>
+    <!-- Increase tolerance because the computer can get quite busy -->
+    <param name="transform_tolerance"       value="1.0"/>
+    <param name="recovery_alpha_slow"       value="0.0"/>
+    <param name="recovery_alpha_fast"       value="0.0"/>
+    <param name="initial_pose_x"            value="$(arg initial_pose_x)"/>
+    <param name="initial_pose_y"            value="$(arg initial_pose_y)"/>
+    <param name="initial_pose_a"            value="$(arg initial_pose_a)"/>
+    <remap from="scan"                      to="$(arg scan_topic)"/>
+  </node>
+
+<!-- ******** move_base ******** -->
+<node pkg="move_base" type="move_base" respawn="false" name="move_base_node" output="screen">
+        <remap from="/dom" to="//beebot_diff_drive_controller/odom" />
+        <remap from="/cmd_vel" to="/beebot_diff_drive_controller/cmd_vel" />
+
+        <param name="planner_frame" value="map" type="string"/>
+        <param name="local_planner_frame" value="odom" type="string"/>
+        <param name="map_topic" value="map" type="string"/>
+
+
+        <!-- planner related parameters -->
+        <!-- WARNING: parameters related to the scene1.xml file -->
+        <param name="x1" value="-8.0" type="double"/>  <!-- xscene=x2-x1, yscene=y2-y1 -->
+        <param name="y1" value="-8.0" type="double"/>
+        <param name="x2" value="8.0" type="double"/>
+        <param name="y2" value="8.0" type="double"/>
+
+        <param name="cell_size_x" value="1" type="double"/>
+        <param name="cell_size_y" value="1" type="double"/>
+
+        <param name="minx" value="0" type="double" />
+        <param name="miny" value="0" type="double" />
+        <param name="grid_width" value="50" type="double" />
+        <param name="grid_height" value="30" type="double" />
+        <param name="cell_width" value="1" type="double"/>
+        <param name="cell_height" value="1" type="double"/>
+        <param name="PUBLISH_GRID" value="1" type="int"/>
+
+
+        <!-- Set Goal Tollerance in the RRT planner -->
+        <param name="GOAL_TOLL" value="0.5" type="double"/>
+        <!-- Cost associated to Theta* -->
+
+        <!-- True to select Theta* (1), False (0) to select A* -->
+        <param name="select_globalplanner" value="1" type="int"/>
+        <!-- Minimum cell probability to accept a cell as obstacle in the Grid Planner (see costmap and grid map msg documentation) -->
+        <param name="LEVEL_OBSTACLE_" value="1" type="int"/>
+        <!-- Minimum cell cost to have to accept a cell as obstacle in the RRT Planner(see costmap documentation) -->
+        <param name="LEVEL_COLLCHECKER_OBSTACLE_" value="38" type="int"/>
+
+        <!-- Maximum number of search steps allowed -->
+        <param name="MAX_LIMIT_SEARCH_STEPS" value="10000" type="int"/>
+
+        <param name="min_cost_p" value="0.5" type="double"/>
+
+        <!-- Frequency of the Grid planner -->
+        <param name="grid_planner_f" value="5" type="double"/>
+
+        <!--
+        Choose between the type of stop condition
+        value=1, based on max number of seconds allowed
+        value=0, based on max number of RRT iterations allowed
+        -->
+        <param name="TIMECOUNTER" value="1" type="int"/>
+        <param name="MAXTIME" value="2" type="double"/>
+
+        <!--
+        WHAT_TO_SHOW = 0 Display nothing
+        WHAT_TO_SHOW = 1 Display all the samples
+        WHAT_TO_SHOW = 2 Display the nearest vertices
+        -->
+        <param name="WHATTOSHOW" value="1" type="int"/>
+
+
+        <!-- Rectangle Collision Checker Params for Daryl Robot-->
+        <param name="PARALLEL" value="0" type="int"/>
+        <param name="K" value="5" type="int"/>
+        <param name="RAD_OBST" value="2.5" type="double"/>
+        <!-- <param name="ROBOT_LENGTH" value="0.78" type="double"/>
+        <param name="ROBOT_WIDTH" value="0.55" type="double"/>
+        -->
+        <!-- Testing on IRL -->
+        <param name="ROBOT_LENGTH" value="0.30" type="double"/>
+        <param name="ROBOT_WIDTH" value="0.30" type="double"/>
+
+        <!--
+        According to the TIMECOUNTER
+        it represents:
+        - max number of seconds allowed or
+        - max number of RRT iterations allowed
+        -->
+        <param name="max_iterations" value="100" type="int"/>
+
+
+
+        <!-- Not currently used -->
+        <!--
+        Choose between the type of distance metric
+        value=2, Regression Neural Network
+        value=1, Regression Basis Function Model
+        value=0, POSQ 0.5
+        value=3, Euclidean Distance
+        value=4, IRL Cost
+        value=5, IRL scaled + Smoothness
+        -->
+        <param name="SELECT_FUNC" value="1" type="int"/>
+        <param name="SCALING_IRL" value="1" type="double"/>
+        <param name="COST_DISPLAY" value="0" type="int"/>
+
+
+        <!--
+        Stop the planner at the first found solution
+        value=1
+        -->
+        <param name="FIRSTSOLUTION" value="1" type="int"/>
+
+        <param name="NRUNS" value="1" type="int" />
+
+        <param name="NUMBER_UPDATE_TRAJ" value="2" type="int"/>
+
+        <param name="NOANIM" value="0" type="int"/>
+
+        <param name="DISPLAY_METRICS" value="0" type="int"/>
+
+
+        <!--
+        Disply Debug info
+        value=1
+        -->
+        <param name="DEB_RRT" value="1" type="int"/>
+
+
+        <!-- If GOALPARAM == 1 the goal is loaded from parameters  -->
+        <param name="GOALPARAM" value="0" type="int"/>
+
+        <!-- planner related parameters: select the type of planner you prefer.
+        value=0 RRT
+        value=1 RRT* with only one phase
+        value=2 RRT* full
+        -->
+        <param name="type_planner" value="2" type="int"/>
+
+        <!-- If BOX == 1 BallBox Theorem Applied when Nearest Vertex is choosed -->
+        <param name="BOX" value="0" type="int"/>
+
+        <!-- RADIUS is the value of the radius used to select the nearest vertex, if radius is ZERO than its value is choosed by RRT* -->
+        <param name="RADIUS" value="4" type="double"/>
+        <param name="RHO" value=".15" type="double"/>
+        <param name="DT"  value="0.1" type="double"/>
+        <!-- <param name="L_AXIS" value="0.456" type="double"/> -->
+        <param name="READ_AGENTS" value="0" type="int"/>
+        <param name="L_AXIS" value="0.456" type="double"/>
+        <!-- <param name="L_AXIS" value="0.92" type="double"/> -->
+
+
+
+
+        <!-- Params Branching -->
+        <param name="THRS_BRANCHBOUND" value="0.1" type="double"/>
+        <param name="BRANCHBOUND" value="0" type="int"/>
+        <param name="BRANCHBOUND_RATIO" value="100" type="int"/>
+
+
+        <!-- Params related to SAMPLING -->
+        <!-- if TYPE_SAMPLING == 2 support set as gaussians over a spline fitting the Theta* waypoints -->
+        <!-- If TYPE_SAMPLING == 1 support set as Gaussian -->
+        <!-- if TYPE_SAMPLING == 0 support set as uniform over a strips -->
+        <!-- if TYPE_SAMPLING == 3 support for Theta*-RRT -->
+        <!-- if TYPE_SAMPLING == 4 support set as the entire state space-->
+        <!-- if TYPE_SAMPLING == 5 Path Biasing along the current available trajectory-->
+        <param name="TYPE_SAMPLING" value="3" type="int"/> 
+
+
+        <!-- Goal Biasing valid only with TYPE_SAMPLING == 4 -->
+        <!--<param name="GOAL_BIASING" value="1" type="int"/>-->
+        <param name="GOAL_BIASING" value="4" type="int"/>
+
+        <param name="GOAL_BIASING_ORIENTATION_RANGE" value="0" type="double"/>
+
+        <param name="GOAL_BIASING_THS" value="0.15" type="double"/>
+
+        <!-- Trajectory biasing valid only with TYPE_SAMPLING == 5 -->
+        <param name="BIAS_PROB" value="0.99" type="double"/>
+
+        <param name="DISPERSION" value="0.5" type="double"/>
+
+        <param name="SRCPARENT" value="0" type="int"/>
+
+        <!--   OR_RANGE is the value of the orientation range
+        OR_RANGE = M_PI = 3.14
+        OR_RANGE = M_PI/2 = 1.57
+        -->
+        <param name="OR_RANGE" value="0.80" type="double"/>
+
+        <param name="AVERAGING" value="2" type="int"/>
+
+        <!-- Size of the strip if no Gaussian support is used -->
+        <param name="WIDTH_STRIP"  value="4" type="double" />
+
+
+        <!-- Choose if to add cost from global cost map -->
+        <param name="ADD_COST_FROM_COSTMAP" value="true" type="bool"/>
+
+        <!-- Choose if to add cost associated to path length and changes of heading -->
+        <param name="ADD_COST_PATHLENGTH" value="0" type="int"/>
+
+        <!-- Choose if to add cost closeness to thetastar path -->
+        <param name="ADD_COST_THETASTAR" value="0" type="int"/>
+
+
+        <!--
+        Choose the model
+        if MODEL_COST==0, Repulsive Force
+        if MODEL_COST==1, Attractive Force
+        if MODEL_COST==2 Attractive Force + Orientation
+
+        -->
+        <param name="MODEL_COST" value="2" type="int"/>
+
+        <!--   Number of points of the trajectory between the evaluation of the Theta* cost
+        -->
+        <param name="n_dis_traj" value="25" type="int"/>
+
+        <!-- Params to set how to select the nearest vertex -->
+        <!-- find the nearest vertex according to a cost -->
+        <param name="LEARNED"  value="0" type="int" />
+
+        <!-- find the nearest vertex according to the Kd Tree Euclidean Distance -->
+        <param name="FINDNEAREST"  value="0" type="int" />
+
+        <!-- Compute the Cost using the Basis Function Model if NOTLEARNED==0 -->
+        <param name="NOTLEARNED"  value="1" type="int" />
+
+
+        <!-- Params to include cost of the Theta* path distance -->
+        <!-- In cost function associated to the Theta* path -->
+        <param name="Kd" value="0.5" type="double" />
+        <param name="Kangle" value="0.5" type="double" />
+        <!-- In the cost function associated to the path length and heading changes -->
+        <param name="Kdist" value="0.5" type="double" />
+        <param name="Kor" value="0.5" type="double" />
+
+        <param name="Kth" value="1" type="double" />
+
+        <!-- Param to tune how far the orientation has to converge to the average orientation between two theta* segments -->
+        <param name="Kround" value="1" type="double"/>
+
+        <!-- Use external Sigmas definitions -->
+        <param name="EXT_SIGMAS" value="1" type="int"/>
+
+        <param name="SigmaoverX" value="3" type="double" />
+
+        <param name="SigmaoverY" value="3" type="double" />
+
+
+
+        <!-- MOVE BASE -->
+
+        <!-- load additional move_base params -->
+        <rosparam file="$(find anytimeRRTs)/config/move_base.yaml" command="load" />
+
+        <!-- load global navigation specific parameters -->
+        <rosparam file="$(find anytimeRRTs)/config/common_params.yaml" command="load" ns="global_costmap" />
+
+
+        <rosparam file="$(find anytimeRRTs)/config/global_costmap_params.yaml" command="load" ns="global_costmap" />
+
+
+
+         <param name="base_local_planner" value="$(arg local_planner)"/> 
+
+        <param name="base_global_planner" value="$(arg global_planner)"/>
+        <!--<param name="ProxemicsAnytimeRRTs/dynamic_layers_plugin"
+               value="dynamic_social_costmap::SocialLayers" />-->
+
+
+
+        <!-- Move Base params -->
+        <param name="controller_frequency" value="10" />
+        <param name="controller_patience" value="100.0" />
+        <param name="planner_frequency" value="0.05" />
+        <param name="recovery_behavior_enabled" value="false"/>
+
+
+
+    </node>
+
+
+<!-- ******** constant velocity prediction node ********** -->
+  <node name="constant_velocity_prediction" pkg="people_prediction" type="constant_velocity_prediction" />
+
+</launch>
