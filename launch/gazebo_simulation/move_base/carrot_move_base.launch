@@ -1,0 +1,11 @@
+<launch>
+
+  <node pkg="move_base" type="move_base" respawn="false" name="move_base" output="screen" clear_params="true">
+    <rosparam file="$(find proxemics_anytimerrts)/move_base_config/move_base.yaml" command="load" />
+    <rosparam file="$(find proxemics_anytimerrts)/move_base_config/common_params.yaml" command="load" ns="global_costmap" />
+    <rosparam file="$(find proxemics_anytimerrts)/move_base_config/global_costmap_params.yaml" command="load" ns="global_costmap" />
+    <rosparam file="$(find proxemics_anytimerrts)/move_base_config/common_params.yaml" command="load" ns="local_costmap" />
+    <rosparam file="$(find proxemics_anytimerrts)/move_base_config/local_costmap_params.yaml" command="load" />
+  </node>
+  
+</launch>

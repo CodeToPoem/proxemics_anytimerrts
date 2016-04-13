@@ -61,7 +61,8 @@
 #include <proxemics_anytimerrts/state_discretizer.h>
 #include <proxemics_anytimerrts/trajectory_rollout.h>
 #include <proxemics_anytimerrts/hasher.h>
-#include <proxemics_anytimerrts/Path.h>
+//#include <proxemics_anytimerrts/Path.h>
+#include <lattice_planner/Path.h>
 #include <proxemics_anytimerrts/cost_manager.h>
 #include <proxemics_anytimerrts/dynamic_costmap.h>
 
@@ -264,7 +265,62 @@ public:
 /// *****************************************************************************
 /// RRT Planner's parameters
 /// *****************************************************************************
-    double cellwidth_;  ///<  @brief Cell width
+    /**
+    * @brief Wrap the angle
+    * @param, alpha, angle to wrap in the range [min min+2*M_PI]
+    * @param, min, beginning of the range
+    * @return angle in correct range
+    */
+    double set_angle_to_range(double alpha, double min);   
+    
+    /**
+    * @brief publishSample, Publish sample of RRT
+    * @param x, x coordinate of the sample
+    * @param y, y coordinate of the sample
+    * @param theta, orientation of the sample
+    * @param ident, associate id to the sample published
+    * @return void
+    */
+    void publishSample(double x,double y, double theta, int ident);
+    
+    /**
+    * @brief Publish the tree
+    * @return void
+    */
+    void publishTree();
+    
+    /**
+    * @brief publishPath, Publish path
+    * @return void
+    */
+    void publishPath(Trajectory *t);    
+
+    /**
+    * @brief set the Goal region
+    * @param, x coordinate of the goal pose
+    * @param, y coordinate of the goal pose
+    * @param, theta yaw angle of the goal pose
+    * @param, toll yaw angle of the goal pose
+    * @param, goal_frame goal frame
+    * @return void
+    */
+    void setGoal(double x, double y, double theta, double toll, std::string goal_frame);    
+   
+    /**
+    * @brief setGlobalPathSupport, set the global support to use in the planning phase
+    * @return true, if the plan was set
+    */
+    bool setGlobalPathSupport(std::vector< geometry_msgs::PoseStamped > plan);    
+
+    /**
+    * @brief Transform pose in planner_frame
+    * @param, init_pose initial pose to transform
+    * @return Pose transformed
+    */
+    geometry_msgs::PoseStamped transformPose(geometry_msgs::PoseStamped init_pose);
+
+    
+   double cellwidth_;  ///<  @brief Cell width
 
     double cellheight_; ///<  @brief Cell height
 
@@ -381,6 +437,7 @@ public:
 
     geometry_msgs::Pose goal_pose_; ///<  @brief Goal pose
 
+    geometry_msgs::Pose previous_goal_pose_; ///<  @brief Goal pose
     //
     int PARALLEL; ///<  @brief Parallelize collision checker (only rectangular colllision checker)
 
@@ -512,6 +569,9 @@ public:
 
     int cnt_no_plan_; ///<  @brief counter of no planning sol
 
+    int initialize_previous_goal_ ;
+    
+    double last_path_length_ ;
 /// ************************RRT Planner's parameters ****************************
 
 
@@ -558,12 +618,12 @@ private:
   bool allow_unknown_; ///< whether the planner is allowed to expand into unknown map regions
   double xy_goal_tolerance_; ///< the Euclidean goal tolerance distance
   double yaw_goal_tolerance_; ///< the rotational goal tolerance in rad
-///  double time_resolution_; ///< time resolution of the discretized configuration space
-///  double map_index_check_time_inkr_; ///< time increment to slice trajectories for collision checking
+  double time_resolution_; ///< time resolution of the discretized configuration space
+  double map_index_check_time_inkr_; ///< time increment to slice trajectories for collision checking
   int max_timesteps_; ///< maximum number of time steps of the discretized configuration space
   double planning_timeout_; ///< timeout for the planning after which the best solution found so far is returned
   bool passive_navigation_; ///< flag for planning dynamically for the max number of time steps, not only until the goal is found
-///  bool publish_expanded_; ///< flag for publishing the expanded search tree for visualization
+  bool publish_expanded_; ///< flag for publishing the expanded search tree for visualization
 
   //flags for easing path finding - violate optimality but necessary for quick
   //calculation
@@ -575,7 +635,7 @@ private:
 ///  Pose start_pose_; ///< start pose for planning
 ///  Pose goal_pose_; ///< desired goal pose
   ros::Time path_time_; ///< time at which the path is released (after planning_timeout)
-  proxemics_anytimerrts::Path current_plan_ ;  ///< last planned path
+  lattice_planner::Path current_plan_ ;  ///< last planned path
   nav_msgs::Path expanded_paths_; ///< paths expanded during search
   bool planning_timed_out_; ///< whether the planning is timed out
 
