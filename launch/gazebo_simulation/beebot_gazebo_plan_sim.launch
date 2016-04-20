@@ -9,10 +9,11 @@ calls in NTU Beebot, and fires up motion planner
 <!-- ******* 1. Choose planner types ******* -->
 <!--
 Global planners:
+Dijkstra: (blank, default)
 AD*: SBPLLatticePlanner
 ADRRT*: anytimeRRTs/AnytimeRRTsROS
 Social Aware ADRRT*: proxemics_anytimerrts/ProxemicsAnytimeRRTs
-lattice_planner: lattice_planner/TBPlanner
+lattice_planner (A*): lattice_planner/TBPlanner
 
 Local Planners:
 Dynamic Window Algorithm: dwa_local_planner/DWAPlannerROS
@@ -52,10 +53,33 @@ Time path follower: path_executer/PathFollower
 <node name="map_server" type="map_server" pkg="map_server" 
       args="$(arg map_file)" />
 
-<!-- ******** AMCL *************-->
-<include file="$(find proxemics_anytimerrts)/launch/gazebo_simulation/move_base/my_amcl.launch" />
+<!-- ******** Localization (Pose estimate) *************-->
+<!-- i. AMCL -->
+<!--
+<include file="$(find proxemics_anytimerrts)/launch/gazebo_simulation/pose_estimate/my_amcl.launch" >
+  <arg name="odom_frame_id"   default="/groundTruth_odom"/>
+</include>
+-->
+<!-- ii. Humanoid localization 暫時放棄-->
+<!--
+<include file="$(find proxemics_anytimerrts)/launch/gazebo_simulation/pose_estimate/6d_mcl.launch" />
+-->
+<!-- iv. Ground truth to tf (Warning: it publish pose of data type PoseStamed and not PoseWithCovarianceStamped)-->
+<!--
+<include file="$(find proxemics_anytimerrts)/launch/gazebo_simulation/pose_estimate/ground_truth_to_tf.launch" >
+  <arg name="use_ground_truth_for_tf" value="true" />
+</include>
+-->
+<!--v. MRPT Localization -->
+<include file="$(find proxemics_anytimerrts)/launch/gazebo_simulation/pose_estimate/mrpt_localization.launch" />
 
+<!--TODO integrate ground truth to tf into robot localization -->
+<!-- vi. Robot Localization -->
+<!--
+<include file="$(find proxemics_anytimerrts)/launch/gazebo_simulation/pose_estimate/ekf_fusion_estimate.launch" />
+-->
 <!-- ******** move_base ******** -->
+
 <remap from="/odom" to="/beebot_diff_drive_controller/odom" />
 <include file="$(find proxemics_anytimerrts)/launch/gazebo_simulation/move_base/anytime_dynamic_rrts.launch" >
   <arg name="global_planner" default="$(arg global_planner)" />
@@ -69,7 +93,7 @@ Time path follower: path_executer/PathFollower
 <!--Dijkstra global planner + TEB local planner -->
 <!--
 <remap from="/cmd_vel" to="/beebot_diff_drive_controller/cmd_vel" />
-<remap from="/odom" to="/beebot_diff_drive_controller/odom" />
+<remap from="/odom" to="/odometry/filtered" />
 <remap from="/laser/scan" to="/beebot/laser/scan" />
 <include file="$(find teb_local_planner)/launch/move_base.launch" />
 -->
@@ -78,4 +102,11 @@ Time path follower: path_executer/PathFollower
 <!-- FIXME Yet to be re-filled in
   <node name="constant_velocity_prediction" pkg="people_prediction" type="constant_velocity_prediction" />
 -->
+
+<!-- ******* Optional: Octomap ******-->
+<node pkg="octomap_server" type="octomap_server_node" name="octomap_server_node">
+  <param name="frame_id"         value="map" />
+  <param name="base_frame_id"    value="base_link" />
+  <remap from="cloud_in" to="/camera/depth/points" />
+</node>
 </launch>

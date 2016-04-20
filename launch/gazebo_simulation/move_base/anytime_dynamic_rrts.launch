@@ -280,7 +280,7 @@
 
         <!--Exclusively for SBPL planner -->
         <param name="SBPLLatticePlanner/primitive_filename" value="$(find sbpl)/matlab/mprim/rover.mprim" />
-        <rosparam name="$(find proxemics_anytimerrts)/move_base_config/sbpl_global_params.yaml" command="load" />
+        <rosparam file="$(find proxemics_anytimerrts)/move_base_config/sbpl_global_params.yaml" command="load" />
 
     </node>
 

@@ -1,0 +1,18 @@
+<launch>
+    <node pkg="rosbag" type="play" name="player" output="screen" args="/media/charly/Data/sim_map_2016-04-14-22-50-14.bag"/>
+
+    <node pkg="mrpt_localization" type="mrpt_localization_node" name="mrpt_localization_node" output="screen">
+    <param name="ini_file" value="$(find proxemics_anytimerrts)/launch/gazebo_simulation/pose_estimate/mrpt_maps/pf-localization.ini"/> 
+    <param name="map_file" value="$(find proxemics_anytimerrts)/launch/gazebo_simulation/pose_estimate/mrpt_maps/sim_map.simplemap"/> 
+    <param name="odom_frame_id" value="odom"/> 
+    <param name="global_frame_id" value="/map"/> 
+    <param name="base_frame_id" value="/base_link"/> 
+    <param name="map_update_skip" value="20"/> 
+    <param name="particlecloud_update_skip" value="1"/> 
+    <param name="tf_prefix" value=""/> 
+    <param name="debug" value="true"/>
+    <param name="gui_mrpt" value="true"/> 
+    <param name="sensor_sources" value="/beebot/laser/scan"/>
+    <remap from="particlecloud" to="camera/depth/points"/>
+  </node>
+</launch>

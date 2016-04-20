@@ -1,0 +1,21 @@
+<launch>
+  <arg name="cloud_in" default="/camera/depth/points" />
+
+
+  <remap from="/scan"           to="/beebot/laser/scan" />
+  <remap from="point_cloud"     to="$(arg cloud_in)" />
+  <remap from="cloud_in"        to="$(arg cloud_in)" />
+
+  <!--1. fire up octomap_server -->
+  <node pkg="octomap_server" type="octomap_server_node" name="octomap_server_node">
+    <param name="frame_id"         value="map" />
+    <param name="base_frame_id"    value="base_link" />
+  </node>
+
+  <!--2. fire up humanoid localization node 
+         and load in configuration parameter file -->
+  <node pkg="humanoid_localization" type="localization_node" name="humanoid_localization" output="screen" >
+     <!--<rosparam file="$(find proxemics_anytimerrts)/launch/gazebo_simulation/pose_estimate/localization_params.yaml" command="load" />  -->
+     <rosparam file="$(find proxemics_anytimerrts)/launch/gazebo_simulation/pose_estimate/ekf_fusion_estimate_test.yaml" command="load" />
+  </node>
+</launch>
