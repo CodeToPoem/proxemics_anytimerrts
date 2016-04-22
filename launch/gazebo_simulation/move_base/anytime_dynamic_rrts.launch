@@ -1,12 +1,14 @@
 <launch>
 <arg name="global_planner" default="anytimeRRTs/AnytimeRRTsROS" />
-<arg name="local_planner" default="dwa_local_planner/DWAPlannerROS" />
+<arg name="local_planner"  default="dwa_local_planner/DWAPlannerROS" />
+<arg name="output_vel"     default="/mobile_base_cmd_vel" />
+<arg name="odom_in"        default="/beebot_diff_drive_controller/odom" />
 
 <node ns="local_costmap" name="voxel_grid_throttle" pkg="topic_tools" type="throttle" args="messages voxel_grid 3.0 voxel_grid_throttled" />
 
 <node pkg="move_base" type="move_base" respawn="false" name="move_base_node" output="screen">
-        <remap from="/dom" to="//beebot_diff_drive_controller/odom" />
-        <remap from="/cmd_vel" to="/beebot_diff_drive_controller/cmd_vel" />
+        <remap from="/dom"     to="$(arg odom_in)" />
+        <remap from="/cmd_vel" to="$(arg output_vel)" />
 
         <param name="planner_frame" value="map" type="string"/>
         <param name="local_planner_frame" value="odom" type="string"/>
