@@ -17,10 +17,10 @@
 
         <!-- planner related parameters -->
         <!-- WARNING: parameters related to the scene1.xml file -->
-        <param name="x1" value="-8.0" type="double"/>  <!-- xscene=x2-x1, yscene=y2-y1 -->
-        <param name="y1" value="-8.0" type="double"/>
+        <!--<param name="x1" value="-8.0" type="double"/>-->  <!-- xscene=x2-x1, yscene=y2-y1 -->
+        <!--<param name="y1" value="-8.0" type="double"/>
         <param name="x2" value="8.0" type="double"/>
-        <param name="y2" value="8.0" type="double"/>
+        <param name="y2" value="8.0" type="double"/>-->
 
         <param name="cell_size_x" value="0.05" type="double"/>
         <param name="cell_size_y" value="0.05" type="double"/>
@@ -28,10 +28,10 @@
         <param name="minx" value="0" type="double" />
         <param name="miny" value="0" type="double" />
         <param name="grid_width" value="0.05" type="double" />
-        <param name="grid_height" value="30" type="double" />
+        <!--<param name="grid_height" value="30" type="double" />-->
         <param name="cell_width" value="0.05" type="double"/>
-        <param name="cell_height" value="1" type="double"/>
-        <param name="PUBLISH_GRID" value="1" type="int"/>
+        <!--<param name="cell_height" value="1" type="double"/>
+        <param name="PUBLISH_GRID" value="1" type="int"/>-->
 
 
         <!-- Set Goal Tollerance in the RRT planner -->
@@ -66,7 +66,7 @@
         WHAT_TO_SHOW = 1 Display all the samples
         WHAT_TO_SHOW = 2 Display the nearest vertices
         -->
-        <param name="WHATTOSHOW" value="1" type="int"/>
+        <param name="WHATTOSHOW" value="2" type="int"/>
 
 
         <!-- Rectangle Collision Checker Params for Daryl Robot-->

@@ -53,37 +53,67 @@ Time path follower: path_executer/PathFollower
 <node name="map_server" type="map_server" pkg="map_server" 
       args="$(arg map_file)" />
 
-<!-- ******** Localization (Pose estimate) *************-->
-<!-- i. AMCL -->
+<!-- ******** odometry ********* -->
+<arg name="filtered_odom" default="odometry/filtered" />
+<arg name="rgb_image" default="/camera/rgb/image_raw" />
+<arg name="depth_image" default="/camera/depth/image_raw" />
+<arg name="rgb_cam_info" default="/camera/rgb/camera_info" />
+<arg name="cam_height" default="0.2485"/>
+
+<!--i. Laser Odometry -->
+<!--TODO-->
+<!--ii. Visual Odometry -->
+<!--
+  <node pkg="viso2_ros" type="mono_odometer" name="mono_odometer" >
+	  <remap from="/image" to="$(arg rgb_image)" />
+	  <remap from="/camera_info" to="$(arg rgb_cam_info)" />
+	  
+	  <param name="camera_height" value="$(arg cam_height)"/>
+          <param name="publish_tf"    value="false" />
+  </node>
+-->
+<!--iii. RGB-D Odometry -->
+  <remap from="/odom" to="rgbd_odom" />
+  <node pkg="rtabmap_ros" type="rgbd_odometry" name="rgbd_odometry">     
+      <remap from="rgb/image"         to="$(arg rgb_image)"/>
+      <remap from="depth/image"       to="$(arg depth_image)"/>
+      <remap from="rgb/camera_info"   to="$(arg rgb_cam_info)"/>
+      <remap from="/odom"             to="/rgbd_odom"/>
+      <param name="frame_id"          type="string"             value="base_link"/>
+      <param name="Odom/Holonomic"    type="string"             value="false" />
+      <param name="Odom/ParticleFiltering" type="string"        value="true" />
+  </node>
+
+
+
+<!-- v. Robot Localization-->
+<!--
+<include file="$(find proxemics_anytimerrts)/launch/gazebo_simulation/pose_estimate/ekf_fusion_estimate.launch" >
+    <remap from="odometry/filtered" to="$(arg filtered_odom)" />
+</include>
+-->
+
+<!-- ******** Localization (Pose estimate) Comment out either i.a, or i.b. *************-->
+<!-- i.a. AMCL -->
 <!--
 <include file="$(find proxemics_anytimerrts)/launch/gazebo_simulation/pose_estimate/my_amcl.launch" >
-  <arg name="odom_frame_id"   default="/groundTruth_odom"/>
+  <arg name="odom_frame_id"   value="/odom"/>
 </include>
 -->
-<!-- ii. Humanoid localization 暫時放棄-->
-<!--
-<include file="$(find proxemics_anytimerrts)/launch/gazebo_simulation/pose_estimate/6d_mcl.launch" />
--->
-<!-- iv. Ground truth to tf (Warning: it publish pose of data type PoseStamed and not PoseWithCovarianceStamped)-->
-<!--
-<include file="$(find proxemics_anytimerrts)/launch/gazebo_simulation/pose_estimate/ground_truth_to_tf.launch" >
-  <arg name="use_ground_truth_for_tf" value="true" />
-</include>
--->
-<!--v. MRPT Localization -->
-<include file="$(find proxemics_anytimerrts)/launch/gazebo_simulation/pose_estimate/mrpt_localization.launch" />
 
-<!--TODO integrate ground truth to tf into robot localization -->
-<!-- vi. Robot Localization -->
-<!--
-<include file="$(find proxemics_anytimerrts)/launch/gazebo_simulation/pose_estimate/ekf_fusion_estimate.launch" />
--->
+<!--i.b. fake_localization-->
+
+<node pkg="fake_localization" type="fake_localization" name="fake_localization" >
+  <remap from="base_pose_ground_truth" to="/beebot_diff_drive_controller/odom" />
+</node>
+
 <!-- ******** move_base ******** -->
 
-<remap from="/odom" to="/beebot_diff_drive_controller/odom" />
+<remap from="/odom" to="/rgbd_odom" />
 <include file="$(find proxemics_anytimerrts)/launch/gazebo_simulation/move_base/anytime_dynamic_rrts.launch" >
   <arg name="global_planner" default="$(arg global_planner)" />
   <arg name="local_planner" default="$(arg local_planner)" />
+  <arg name="output_vel"     default="/cmd_vel_mux/nav_cmd_vel" />
 </include>
 
 <!--Original SBPL planner-->
@@ -97,6 +127,14 @@ Time path follower: path_executer/PathFollower
 <remap from="/laser/scan" to="/beebot/laser/scan" />
 <include file="$(find teb_local_planner)/launch/move_base.launch" />
 -->
+
+<!-- ******** Velocity multiplexer and smoother ********** -->
+<include file="$(find proxemics_anytimerrts)/launch/gazebo_simulation/move_base/kobuki_controller_system.launch" >
+  <arg name="raw_cmd_vel_topic"     value="cmd_vel_mux/output"/>                    <!--subscribed topic -->
+  <arg name="smooth_cmd_vel_topic"  value="/beebot_diff_drive_controller/cmd_vel"/> <!--publish topic-->
+  <arg name="robot_cmd_vel_topic"   value="cmd_vel_mux/output"/>                    <!--subscribed topic-->
+  <arg name="odom_topic"            value="$(arg filtered_odom)"/>    <!--subscribed topic-->
+</include>
 
 <!-- ******** constant velocity prediction node ********** -->
 <!-- FIXME Yet to be re-filled in

@@ -2,14 +2,7 @@
 
   <arg name="nodelet_manager_name" default="nodelet_manager" />
 
-  <!--Safety controller's settings-->
-  <arg name="reverse"               default="false"/>
-  <arg name="reversing_distance"    default="0.02"/>
-  <arg name="reversing_velocity"    default="0.02"/>
-  <arg name="enable_topic_name"     default="enable"/>
-  <arg name="disable_topic_name"    default="disable"/>
-  <arg name="ranger_topic_name"     default="/scan"/>
-  <arg name="cmd_vel_topic_name"    default="cmd_vel"/> 
+  <!--Safety controller's settings TODO-->
 
   <!--Velocity Smoother's settings-->
   <arg name="smoother_node_name"    default="velocity_smoother" />
@@ -31,23 +24,7 @@
 
 
   <!--******* Kobuki Safety Controller ******* -->
-<node pkg="nodelet" type="nodelet" name="kobuki_safety_controller"
-        args="load kobuki_safety_controller/SafetyControllerNodelet $(arg nodelet_manager_name)">
-    <param name="reverse"             type="bool"   value="$(arg reverse)"/>
-    <param name="reversing_distance"  type="double" value="$(arg reversing_distance)"/>
-    <param name="reversing_velocity"  type="double" value="$(arg reversing_velocity)"/>
-    <remap from="kobuki_safety_controller/cmd_vel" to="cmd_vel_mux/cmd_vel_safety" />
-    <remap from="kobuki_safety_controller/events/bumper"      to="/mobile_base/events/bumper"/>
-    <remap from="kobuki_safety_controller/events/cliff"       to="/mobile_base/events/cliff"/>
-    <remap from="kobuki_safety_controller/events/wheel_drop"  to="/mobile_base/events/wheel_drop"/>
-  </node>
-
-   <!--***** Turn on teleoperation on keyboard ****** -->
-<!--
-   <node pkg="teleop_twist_keyboard" type="teleop_twist_keyboard.py" name="teleop_twist_keyboard">
-     <remap from="cmd_vel" to="cmd_vel_mux/key_cmd_vel" />
-   </node>
--->
+<!--TODO-->
 
    <!-- ****Velocity Smoother (just regulate the overall output from cmd_vel_mux) ***** -->
   <node pkg="nodelet" type="nodelet" name="$(arg smoother_node_name)"
