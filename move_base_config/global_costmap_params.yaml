@@ -31,6 +31,8 @@ plugins:
    name: inflater 
    type: "costmap_2d::InflationLayer"
 
-# - {name: social_compliance, type: "social_compliance_layer::SocialComplianceLayer"}
+# -
+#  name: dynamic_social_costmap
+#  type: "dynamic_social_costmap::SocialLayers"
 
 
