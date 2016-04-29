@@ -23,7 +23,7 @@ Pose follower: pose_follower/PoseFollower
 Time path follower: path_executer/PathFollower
 -->
 
-<arg name="global_planner" default="anytimeRRTs/AnytimeRRTsROS"/>
+<arg name="global_planner" default="SBPLLatticePlanner"/>
 <arg name="local_planner" default="teb_local_planner/TebLocalPlannerROS" />
 
 <!--<arg name="in_odom" default="/beebot_diff_drive_controller/odom" />-->
@@ -77,11 +77,13 @@ Time path follower: path_executer/PathFollower
 -->
 
 <!--********* Visual Odometry ******* -->
+<!--
   <node pkg="viso2_ros" type="mono_odometer" name="mono_odometer" >
 	  <remap from="/image" to="/camera/rgb/image_raw" />
 	  <remap from="/camera_info" to="/camera/rgb/camera_info" />
 	  <param name="camera_height" value="0.2485"/>
   </node>	
+-->
 
 <!-- ******* Get a better odom ****** -->
 <include file="$(find proxemics_anytimerrts)/launch/gazebo_simulation/pose_estimate/ekf_est_for_slam.launch" />

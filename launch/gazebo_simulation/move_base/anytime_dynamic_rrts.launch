@@ -255,9 +255,10 @@
 
         <!-- load additional move_base params -->
         <rosparam file="$(find proxemics_anytimerrts)/move_base_config/move_base.yaml" command="load" />
-        <rosparam file="$(find proxemics_anytimerrts)/move_base_config/dwa_local_planner_params.yaml" command="load"  />
+        <!--<rosparam file="$(find proxemics_anytimerrts)/move_base_config/dwa_local_planner_params.yaml" command="load"  />-->
         <!-- <rosparam file="$(find proxemics_anytimerrts)/move_base_config/base_local_planner_params_close.yaml" />-->
         <!--<rosparam file="$(find proxemics_anytimerrts)/move_base_config/timed_path_follower_local_planner_params.yaml" />-->
+        <rosparam file="$(find proxemics_anytimerrts)/move_base_config/teb_local_planner_params.yaml" command="load"/>
 
         <!-- load global navigation specific parameters -->
         <rosparam file="$(find proxemics_anytimerrts)/move_base_config/common_params.yaml" command="load" ns="global_costmap" />

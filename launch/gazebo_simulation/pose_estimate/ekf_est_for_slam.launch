@@ -68,6 +68,8 @@
       <param name="pose0" value="/poseupdate" />
       <!--robot's wheel encoder-->
       <param name="odom0" value="/beebot_diff_drive_controller/odom"/>
+      <!--viso2 odom-->
+      <!--<param name="odom1" value="/mono_odometer/odometry" />-->
       
 
       <!-- Each sensor reading updates some or all of the filter's state. These options give you greater control over
@@ -89,6 +91,12 @@
                                       false, false, false,
                                       false, false, false]</rosparam>
 
+      <!--<rosparam param="odom1_config">[false, false, false,
+                                      false, false, false,
+                                      true,  false, false,
+                                      false, false, false,
+                                      false, false, false]</rosparam>-->
+
       <!-- The best practice for including new sensors in robot_localization's state estimation nodes is to pass in velocity
            measurements and let the nodes integrate them. However, this isn't always feasible, and so the state estimation
            nodes support fusion of absolute measurements. If you have more than one sensor providing absolute measurements,
@@ -107,6 +115,7 @@
            variables have at least one source of absolute measurement. -->
       <param name="pose0_differential" value="true"/>
       <param name="odom0_differential" value="false"/>
+      <!--<param name="odom1_differential" value="false"/>-->
 
       <!-- When the node starts, if this parameter is true, then the first measurement is treated as a "zero point" for all
            future measurements. While you can achieve the same effect with the differential paremeter, the key difference is
@@ -114,6 +123,7 @@
            you simply want your measurements to start at 0 for a given sensor, set this to true. -->
       <param name="pose0_relative" value="false"/>
       <param name="odom0_relative" value="false"/>
+      <!--<param name="odom1_relative" value="false"/>-->
 
       <!-- If you're having trouble, try setting this to true, and then echo the /diagnostics_agg topic to see
            if the node is unhappy with any settings or data. -->
@@ -129,6 +139,7 @@
            miss any messages (even if your frequency is set to a relatively small value), increase these. -->
       <param name="pose0_queue_size" value="1"/>
       <param name="odom0_queue_size" value="1"/>
+      <!--<param name="odom1_queue_size" value="1"/>-->
 
       <!-- If your data is subject to outliers, use these threshold settings, expressed as Mahalanobis distances, to control
            how far away from the current vehicle state a sensor measurement is permitted to be. Each defaults to
@@ -136,7 +147,8 @@
       <param name="pose0_rejection_threshold" value="0.1"/>
       <param name="odom0_pose_rejection_threshold" value="0.1"/>
       <param name="odom0_twist_rejection_threshold" value="0.1"/>
-
+      <!--<param name="odom0_pose_rejection_threshold" value="0.1"/>
+      <param name="odom1_twist_rejection_threshold" value="0.1"/>-->
 
 
       <!-- Debug settings. Not for the faint of heart. Outputs a ludicrous amount of information to the file
