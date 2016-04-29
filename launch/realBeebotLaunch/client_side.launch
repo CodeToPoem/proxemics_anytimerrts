@@ -92,6 +92,11 @@ Time path follower: path_executer/PathFollower
 -->
 
 
+<!--********* ekf sensor fusion ******** -->
+<include file="$(find proxemics_anytimerrts)/launch/realBeebotLaunch/real_ekf_estimation.launch" >
+    <arg name="wh_odom" value="/odom_relay" />
+</include>
+
 
 
 <!-- ******** move_base ******** -->

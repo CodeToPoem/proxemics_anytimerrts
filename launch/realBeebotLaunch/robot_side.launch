@@ -46,6 +46,5 @@
       <remap from="rgb/camera_info_out"  to="$(arg cam_ns)/data_throttled_camera_info" />
    </node>
   
-   <!--********* ekf sensor fusion ******** -->
-   <include file="$(find proxemics_anytimerrts)/launch/gazebo_simulation/pose_estimate/ekf_est_for_slam.launch" />
+
 </launch>
