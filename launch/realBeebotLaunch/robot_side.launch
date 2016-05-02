@@ -21,9 +21,8 @@
    </node>
 
    <!-- ****** turn on odometer ********** -->
-<!--
    <node pkg="odom_base_pubisher" type="odom_base_pubisher_node" name="odom_base_pubisher_node"/>
--->
+
    <!-- ******* Turn on teleoperation on keyboard ******* -->
    <group if="$(arg teleop)">
        <node pkg="teleop_twist_keyboard" type="teleop_twist_keyboard.py" name="teleop_twist_keyboard"/>
