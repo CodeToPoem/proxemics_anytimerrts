@@ -57,14 +57,6 @@ Time path follower: path_executer/PathFollower
 
 
 
-
-<!-- ******** SLAM *************-->
-<include file="$(find mobile_safeguard_primitive)/launch/navigation/utils/SLAM/hector_slam.launch" >
-  <arg name="scan_topic" value="/scan_relay" />
-</include>
-
-
-
 <!-- ******** RGBD Odometry ********* -->
 <!--
   <node pkg="rtabmap_ros" type="rgbd_odometry" name="rgbd_odometry" output="screen">    
@@ -127,7 +119,7 @@ Time path follower: path_executer/PathFollower
 <!-- ******** Velocity Regulator with safety measure ***** -->
 <include file="$(find proxemics_anytimerrts)/launch/gazebo_simulation/move_base/kobuki_controller_system.launch" >
   <!--Velocity Smoother's settings-->
-  <arg name="raw_cmd_vel_topic"     value="cmd_vel_mux/output"/>                      <!--subscribed topic: related to cmd_vel_mux's published topic -->
+  <arg name="raw_cmd_vel_topic"     value="cmd_vel_mux/output"/>                      <!--overall pu topic: related to cmd_vel_mux's published topic -->
   <arg name="smooth_cmd_vel_topic"  value="$(arg overall_out_vel)"/>                  <!--publish topic-->
   <arg name="robot_cmd_vel_topic"   value="cmd_vel_mux/output"/>                      <!--subscribed topic-->
   <arg name="odom_topic"            value="$(arg in_odom)"/>                          <!--subscribed topic-->
@@ -144,4 +136,10 @@ Time path follower: path_executer/PathFollower
   <param name="base_frame_id"    value="base_link" />
   <remap from="cloud_in"         to="$(arg cloud_in)" />
 </node>
+
+
+
+<!--********** Rviz ************* -->
+<arg name="rvizconfig" default="$(find proxemics_anytimerrts)/launch/rviz_config/slam_planning.rviz" />
+<node name="rviz" pkg="rviz" type="rviz" args="-d $(arg rvizconfig)" required="true" />
 </launch>

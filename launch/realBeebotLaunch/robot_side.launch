@@ -48,5 +48,10 @@
       <remap from="rgb/camera_info_out"  to="$(arg cam_ns)/data_throttled_camera_info" />
    </node>
   
+<!-- ******** SLAM *************-->
+<include file="$(find mobile_safeguard_primitive)/launch/navigation/utils/SLAM/hector_slam.launch" >
+  <arg name="scan_topic" value="/scan" />
+</include>
+
 
 </launch>
