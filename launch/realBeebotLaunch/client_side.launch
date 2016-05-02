@@ -60,7 +60,7 @@ Time path follower: path_executer/PathFollower
 
 <!-- ******** SLAM *************-->
 <include file="$(find mobile_safeguard_primitive)/launch/navigation/utils/SLAM/hector_slam.launch" >
-  <arg name="scan_topic" default="$(arg scan)" />
+  <arg name="scan_topic" value="/scan_relay" />
 </include>
 
 

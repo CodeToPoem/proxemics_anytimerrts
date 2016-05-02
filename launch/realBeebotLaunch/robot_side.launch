@@ -6,6 +6,7 @@
    <include file="$(find simulation_tobot)/beebot_description/launch/beebot_rviz.launch">
       <param name="robot_description" command="$(arg urdf_file)" />
       <arg name="rvizconfig" value="$(find proxemics_anytimerrts)/launch/rviz_config/rviz_config.rviz" />
+      <arg name="rviz_on" value="false"/>
    </include>
 
    <!-- ********* Run a static transform between /base_link and /base_footprint needed for SLAM ********* -->
