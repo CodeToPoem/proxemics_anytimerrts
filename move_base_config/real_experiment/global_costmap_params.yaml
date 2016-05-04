@@ -1,0 +1,38 @@
+# do not use rolling window version of costmap, as global costmap is static
+rolling_window: false
+# global map will be publish at modrate frequency of 10
+publish_frequency: 10.0
+# resolution of the map in meters/cell
+resolution: 0.20
+# global costmap will operate in the map frame, transform between this and robot-base frame must be available
+global_frame: map
+
+static_map: true
+
+robot_base_frame: base_link
+
+# specifications for the footprint of the robot as polygon (in meters)
+footprint: [[0.50, 0.50], [0.50, -0.50], [-0.50, -0.50], [-0.50, 0.50] ]  
+
+origin_x: 0.0
+origin_y: 0.0
+
+# for global plannign we will use static-map, obstacles, inflation and hanp layers
+plugins:
+ - 
+   name: static_map 
+   type: "costmap_2d::StaticLayer"
+
+ - 
+   name: obstacles 
+   type: "costmap_2d::ObstacleLayer"
+
+ - 
+   name: inflater 
+   type: "costmap_2d::InflationLayer"
+
+# -
+#  name: dynamic_social_costmap
+#  type: "dynamic_social_costmap::SocialLayers"
+
+
