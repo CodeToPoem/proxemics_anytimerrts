@@ -1,0 +1,18 @@
+<launch>
+  <arg name="param_file" default="$(find proxemics_anytimerrts)/launch/gazebo_simulation/move_base/collision_velocity_filter_params.yaml" />
+  <arg name="obstacles" default="/local_costmap_node/costmap/obstacles" />
+  <arg name="in_cmd_vel" default="/cmd_vel" />
+  <arg name="out_cmd_vel" default="/cmd_vel_safe" />
+  <arg name="relevant_obstacles" default="/base/collision_velocity_filter/relevant_obstacles" />
+
+  <node pkg="cob_collision_velocity_filter" type="collision_velocity_filter" name="collision_velocity_filter">
+    <!-- remap incoming variables -->
+    <remap from="~obstacles" to="$(arg obstacles)" />   <!--subscribed topic-->
+    <remap from="~teleop_twist" to="$(arg in_cmd_vel)" />  <!--subscribed topic-->
+    <!-- remap outgoing variables --> 
+    <remap from="~command" to="$(arg out_cmd_vel)" />                  <!--published topic-->
+    <remap from="~relevant_obstacles" to="$(arg relevant_obstacles)" />
+    <!-- load parameter file -->
+    <rosparam file="$(arg param_file)" command="load" />
+  </node>
+</launch>

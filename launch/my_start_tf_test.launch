@@ -6,7 +6,8 @@
 
   <!-- Load the URDF/Xacro model of our robot -->
   <!--<arg name="urdf_file" default="$(find xacro)/xacro.py '$(find mobile_safeguard_primitive)/launch/rtabmapping/tf_config/my_tobot.urdf.xacro'" />-->
-  <arg name="urdf_file" default="$(find xacro)/xacro.py '$(find simulation_tobot)/beebot_description/urdf/beebot.xacro'" />
+  <!--<arg name="urdf_file" default="$(find xacro)/xacro.py '$(find simulation_tobot)/beebot_description/urdf/beebot.xacro'" />-->
+  <arg name="urdf_file" default="$(find xacro)/xacro.py '$(find simulation_tobot)/beebot_description/urdf/gazebo_ground_scenario/beebot.xacro'" />
    
   <param name="robot_description" command="$(arg urdf_file)" />
     

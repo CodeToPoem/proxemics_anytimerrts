@@ -37,4 +37,7 @@ plugins:
    - 
     name: dynamic_social_costmap
     type: "dynamic_social_costmap::SocialLayers"
- 
+
+   -
+    name: dynamic_social_costmap
+    type: "dynamic_social_costmap::SocialLayers"

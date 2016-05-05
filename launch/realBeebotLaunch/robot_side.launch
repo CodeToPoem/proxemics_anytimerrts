@@ -35,7 +35,7 @@
       <param name="rate" type="double" value="5.0" />
       <!--inputs-->
       <remap from="rgb/image_in"         to="$(arg cam_ns)/rgb/image_rect_color" />
-      <remap from="depth/image_in"       to="$(arg cam_ns)/depth_registered/image_raw" />
+      <remap from="depth/image_in"       to="$(arg cam_ns)/depth/image_rect" />
       <remap from="rgb/camera_info_in"   to="$(arg cam_ns)/rgb/camera_info" />
       <!--outputs-->
       <remap from="rgb/image_out"        to="$(arg cam_ns)/data_throttled_image" />

@@ -39,14 +39,16 @@ inflater:
      inflation_radius: 1.2
      enabled: true
 
-dynamic_social_costmap:
-#        data_type: LaserScan
-#        topic: /beebot/laser/scan 
-#        sensor_frame: /hokuyo_link 
+#dynamic_social_costmap:
+#     observation_sources: people 
+#     people: 
+#        data_type: people_msgs/People
+#        topic: /people  
 #        marking: true 
 #        clearing: true 
-        map_type: costmap
-        enabled: true
+#        map_type: costmap
+#     inflation_radius: 1.2
+#     enabled: true
         
 #social_compliance:
 #    observation_sources: /spencer/perception/tracked_persons_filtered_by_distance /spencer/perception/tracked_groups

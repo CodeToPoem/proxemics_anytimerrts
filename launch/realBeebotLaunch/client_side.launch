@@ -12,9 +12,9 @@ octomap
 -->
 
 <!-- *************** Inputs ****************-->
-<!--<arg name="in_odom" default="/odom" />-->
-<arg name="in_odom" default="/odometry/filtered" />
-<arg name="scan" default="/scan_relay" />
+<arg name="in_odom" default="/odom_relay" />
+<!--<arg name="in_odom" default="/odometry/filtered" />-->
+<arg name="scan_topic" default="/scan_relay" />
 <arg name="overall_out_vel" default="/cmd_vel" />
 <arg name="cloud_in" default="/camera/depth_registered/points" />
 
@@ -36,8 +36,8 @@ Pose follower: pose_follower/PoseFollower
 Time path follower: path_executer/PathFollower
 -->
 
-<arg name="global_planner" default="SBPLLatticePlanner"/>
-<arg name="local_planner" default="teb_local_planner/TebLocalPlannerROS" />
+<arg name="global_planner" default="anytimeRRTs/AnytimeRRTsROS"/>
+<arg name="local_planner" default="pose_follower/PoseFollower" />
 
  
 
@@ -48,11 +48,11 @@ Time path follower: path_executer/PathFollower
 
 <node name="scan_relay" type="relay" pkg="topic_tools" args="/scan /scan_relay" />
 
-<node name="camera_info_relay" type="relay" pkg="topic_tools" args="/camera/data_throttled_camera_info /camera/data_throttled_camera_info_relay" />
+<node name="camera_info_relay" type="relay" pkg="topic_tools" args="camera/data_throttled_camera_info /camera/data_throttled_camera_info_relay" />
 
 <node name="republish_rgb" type="republish" pkg="image_transport" args="theora in:=/camera/data_throttled_image raw out:=/camera/data_throttled_image_relay" />
 
-<node name="republish_depth" type="republish" pkg="image_transport" args="compressedDepth in:=/camera/data_throttled_image_depth raw out:=/camera/data_throttled_image_depth_relay" />
+<node name="republish_depth" type="republish" pkg="image_transport" args="compressedDepth in:=/camera//data_throttled_image_depth raw out:=/camera/data_throttled_image_depth_relay" />
 
 
 
@@ -85,16 +85,18 @@ Time path follower: path_executer/PathFollower
 
 
 <!--********* ekf sensor fusion ******** -->
+<!--
 <include file="$(find proxemics_anytimerrts)/launch/realBeebotLaunch/real_ekf_estimation.launch" >
-    <arg name="wh_odom" value="/odom_relay" />
+    <arg name="wh_odom" value="$(arg in_odom)" />
 </include>
-
+-->
 
 
 <!-- ******** move_base ******** -->
 
 <remap from="/odom" to="$(arg in_odom)" />
-<include file="$(find proxemics_anytimerrts)/launch/gazebo_simulation/move_base/anytime_dynamic_rrts.launch" >
+<include file="$(find proxemics_anytimerrts)/launch/realBeebotLaunch/real_move_base.launch" >
+  <arg name="scan_topic" value="$(arg scan_topic)" />
   <arg name="global_planner" value="$(arg global_planner)" />
   <arg name="local_planner"  value="$(arg local_planner)" />
   <arg name="output_vel"     value="cmd_vel_mux/nav_cmd_vel" />
@@ -131,12 +133,13 @@ Time path follower: path_executer/PathFollower
 
 
 <!-- ******* Optional: Octomap ******-->
+<!--
 <node pkg="octomap_server" type="octomap_server_node" name="octomap_server_node">
   <param name="frame_id"         value="map" />
   <param name="base_frame_id"    value="base_link" />
   <remap from="cloud_in"         to="$(arg cloud_in)" />
 </node>
-
+-->
 
 
 <!--********** Rviz ************* -->

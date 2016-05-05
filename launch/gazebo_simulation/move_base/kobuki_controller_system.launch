@@ -2,7 +2,6 @@
 
   <arg name="nodelet_manager_name" default="nodelet_manager" />
 
-  <!--Safety controller's settings TODO-->
 
   <!--Velocity Smoother's settings-->
   <arg name="smoother_node_name"    default="velocity_smoother" />
@@ -23,8 +22,11 @@
   </node>
 
 
-  <!--******* Kobuki Safety Controller ******* -->
-<!--TODO-->
+  <!--******* Safety Controller ******* -->
+  <include file="$(find proxemics_anytimerrts)/launch/gazebo_simulation/move_base/cob_collision_velocity_filter.launch" >
+     <arg name="in_cmd_vel"  value="/cmd_vel_mux/nav_cmd_vel" />
+     <arg name="out_cmd_vel" value="/cmd_vel_mux/cmd_vel_safety" />
+  </include>
 
    <!-- ****Velocity Smoother (just regulate the overall output from cmd_vel_mux) ***** -->
   <node pkg="nodelet" type="nodelet" name="$(arg smoother_node_name)"
