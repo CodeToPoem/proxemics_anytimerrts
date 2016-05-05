@@ -36,7 +36,7 @@ Pose follower: pose_follower/PoseFollower
 Time path follower: path_executer/PathFollower
 -->
 
-<arg name="global_planner" default="anytimeRRTs/AnytimeRRTsROS"/>
+<arg name="global_planner" default="SBPLLatticePlanner"/>
 <arg name="local_planner" default="pose_follower/PoseFollower" />
 
  
