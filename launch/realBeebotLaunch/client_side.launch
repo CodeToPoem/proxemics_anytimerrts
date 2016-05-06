@@ -10,6 +10,36 @@ octomap
 rviz
 -->
 
+<<<<<<< HEAD
+=======
+<!-- *************** Inputs ****************-->
+<arg name="in_odom" default="/odom_relay" />
+<!--<arg name="in_odom" default="/odometry/filtered" />-->
+<arg name="scan_topic" default="/scan_relay" />
+<arg name="overall_out_vel" default="/cmd_vel" />
+<arg name="cloud_in" default="/camera/depth_registered/points" />
+
+
+<!-- ******* 1. Choose planner types ******* -->
+<!--
+Global planners:
+Dijkstra: (blank, default)
+AD*: SBPLLatticePlanner
+ADRRT*: anytimeRRTs/AnytimeRRTsROS
+Social Aware ADRRT*: proxemics_anytimerrts/ProxemicsAnytimeRRTs
+lattice_planner (A*): lattice_planner/TBPlanner
+
+Local Planners:
+Dynamic Window Algorithm: dwa_local_planner/DWAPlannerROS
+path follower: path_executer/PathFollower
+Timed Elastic Band: teb_local_planner/TebLocalPlannerROS
+Pose follower: pose_follower/PoseFollower
+Time path follower: path_executer/PathFollower
+-->
+
+<arg name="global_planner" default="SBPLLatticePlanner"/>
+<arg name="local_planner" default="pose_follower/PoseFollower" />
+>>>>>>> 901fe97be2de1243bcaccea3a137a618dfbf48d9
 
  
 
