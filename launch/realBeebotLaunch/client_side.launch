@@ -6,38 +6,10 @@ This launch file is used exclusively with robot_side.launch
 in the package proxemics_anytime_rrts.
 The launch file consists of:
 relay
-hector slam
-move_base
 octomap
+rviz
 -->
 
-<!-- *************** Inputs ****************-->
-<arg name="in_odom" default="/odom_relay" />
-<!--<arg name="in_odom" default="/odometry/filtered" />-->
-<arg name="scan_topic" default="/scan_relay" />
-<arg name="overall_out_vel" default="/cmd_vel" />
-<arg name="cloud_in" default="/camera/depth_registered/points" />
-
-
-<!-- ******* 1. Choose planner types ******* -->
-<!--
-Global planners:
-Dijkstra: (blank, default)
-AD*: SBPLLatticePlanner
-ADRRT*: anytimeRRTs/AnytimeRRTsROS
-Social Aware ADRRT*: proxemics_anytimerrts/ProxemicsAnytimeRRTs
-lattice_planner (A*): lattice_planner/TBPlanner
-
-Local Planners:
-Dynamic Window Algorithm: dwa_local_planner/DWAPlannerROS
-path follower: path_executer/PathFollower
-Timed Elastic Band: teb_local_planner/TebLocalPlannerROS
-Pose follower: pose_follower/PoseFollower
-Time path follower: path_executer/PathFollower
--->
-
-<arg name="global_planner" default="anytimeRRTs/AnytimeRRTsROS"/>
-<arg name="local_planner" default="pose_follower/PoseFollower" />
 
  
 
@@ -57,89 +29,7 @@ Time path follower: path_executer/PathFollower
 
 
 
-<!-- ******** RGBD Odometry ********* -->
-<!--
-  <node pkg="rtabmap_ros" type="rgbd_odometry" name="rgbd_odometry" output="screen">    
-      <remap from="rgb/image"       to="/camera/rgb/image_raw"/>
-      <remap from="depth/image"     to="/camera/depth/image_raw"/>
-      <remap from="rgb/camera_info" to="/camera/rgb/camera_info"/>
-      <remap from="/odom" to="/rgbd_odom"/>  
-      <remap from="scan" to="/beebot/laser/scan" />
-      <param name="frame_id" type="string" value="camera_link"/>
-      <param name="subscribe_depth" type="bool"   value="true"/>
-      <param name="Odom/Holonomic" type="bool" value="false" />
-      <param name="Odom/MaxFeatures" type="int" value="0" />
-      <param name="Odom/ParticleSize" type="int" value="5000" />
-      <param name="RGBD/PoseScanMatching" type="string" value="true" />
-  </node>
--->
 
-<!--********* Visual Odometry ******* -->
-<!--
-  <node pkg="viso2_ros" type="mono_odometer" name="mono_odometer" >
-	  <remap from="/image" to="/camera/rgb/image_raw" />
-	  <remap from="/camera_info" to="/camera/rgb/camera_info" />
-	  <param name="camera_height" value="0.2485"/>
-  </node>	
--->
-
-
-<!--********* ekf sensor fusion ******** -->
-<!--
-<include file="$(find proxemics_anytimerrts)/launch/realBeebotLaunch/real_ekf_estimation.launch" >
-    <arg name="wh_odom" value="$(arg in_odom)" />
-</include>
--->
-
-
-<!-- ******** move_base ******** -->
-
-<remap from="/odom" to="$(arg in_odom)" />
-<include file="$(find proxemics_anytimerrts)/launch/realBeebotLaunch/real_move_base.launch" >
-  <arg name="scan_topic" value="$(arg scan_topic)" />
-  <arg name="global_planner" value="$(arg global_planner)" />
-  <arg name="local_planner"  value="$(arg local_planner)" />
-  <arg name="output_vel"     value="cmd_vel_mux/nav_cmd_vel" />
-  <arg name="odom_in"        value="$(arg in_odom)" />
-</include>
-
-<!--Original SBPL planner-->
-<!--
-<include file="$(find sbpl_lattice_planner)/launch/move_base_sbpl.launch" />
--->
-<!--Dijkstra global planner + TEB local planner -->
-<!--
-<remap from="/cmd_vel" to="cmd_vel_mux/nav_cmd_vel" />
-<remap from="/odom" to="$(arg in_odom)" />
-<remap from="/laser/scan" to="/beebot/laser/scan" />
-<include file="$(find teb_local_planner)/launch/move_base.launch" />
--->
-
-
-
-
-<!-- ******** Velocity Regulator with safety measure ***** -->
-<include file="$(find proxemics_anytimerrts)/launch/gazebo_simulation/move_base/kobuki_controller_system.launch" >
-  <!--Velocity Smoother's settings-->
-  <arg name="raw_cmd_vel_topic"     value="cmd_vel_mux/output"/>                      <!--overall pu topic: related to cmd_vel_mux's published topic -->
-  <arg name="smooth_cmd_vel_topic"  value="$(arg overall_out_vel)"/>                  <!--publish topic-->
-  <arg name="robot_cmd_vel_topic"   value="cmd_vel_mux/output"/>                      <!--subscribed topic-->
-  <arg name="odom_topic"            value="$(arg in_odom)"/>                          <!--subscribed topic-->
-</include>
-
-
-
-
-
-
-<!-- ******* Optional: Octomap ******-->
-<!--
-<node pkg="octomap_server" type="octomap_server_node" name="octomap_server_node">
-  <param name="frame_id"         value="map" />
-  <param name="base_frame_id"    value="base_link" />
-  <remap from="cloud_in"         to="$(arg cloud_in)" />
-</node>
--->
 
 
 <!--********** Rviz ************* -->

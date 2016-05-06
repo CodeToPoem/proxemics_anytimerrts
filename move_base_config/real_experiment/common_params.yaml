@@ -23,8 +23,8 @@ obstacles:
        sensor_frame: /hokuyo_link 
        marking: true 
        clearing: true 
-     obstacle_range: 30.0
-     raytrace_range: 30.0
+     obstacle_range: 20.0
+     raytrace_range: 20.0
      enabled: true
      
 inflater:   
@@ -36,7 +36,7 @@ inflater:
         marking: true 
         clearing: true 
         map_type: costmap
-     inflation_radius: 1.2
+     inflation_radius: 1.0
      enabled: true
 
 dynamic_social_costmap:
