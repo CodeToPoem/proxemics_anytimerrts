@@ -1,6 +1,7 @@
 <launch>
    <arg name="teleop" default="false"/>
-   
+   <arg name="no_teb" default="true"/>  <!--since teb_local_planner cannot be installed and compiled in Hydro, if you want to use this local planner, set this setting to false and comment out the move_base on the client side.-->
+
    <!-- ******* launch robot tf frames ******* -->
    <include file="$(find proxemics_anytimerrts)/launch/my_start_tf_test.launch" />
 
@@ -118,7 +119,7 @@ Time path follower: path_executer/PathFollower
 <!-- ******** move_base ******** -->
 
 <remap from="/odom" to="$(arg in_odom)" />
-<include file="$(find proxemics_anytimerrts)/launch/realBeebotLaunch/real_move_base.launch" >
+<include file="$(find proxemics_anytimerrts)/launch/realBeebotLaunch/real_move_base.launch" if="$(arg no_teb)">
   <arg name="scan_topic" value="$(arg scan_topic)" />
   <arg name="global_planner" value="$(arg global_planner)" />
   <arg name="local_planner"  value="$(arg local_planner)" />
