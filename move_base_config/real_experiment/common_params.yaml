@@ -39,14 +39,10 @@ inflater:
      inflation_radius: 1.0
      enabled: true
 
-dynamic_social_costmap:
-#        data_type: LaserScan
-#        topic: /scan 
-#        sensor_frame: /hokuyo_link 
-#        marking: true 
-#        clearing: true 
-        map_type: costmap
-        enabled: true
+social_compliance:
+   goal_topic: /move_base_simple/goal
+   people_topic: /spencer/perception/tracked_persons #filtered_by_distance
+   group_topic: /spencer/perception/tracked_groups
         
 #social_compliance:
 #    observation_sources: /spencer/perception/tracked_persons_filtered_by_distance /spencer/perception/tracked_groups
