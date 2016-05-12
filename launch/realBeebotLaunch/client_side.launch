@@ -63,13 +63,13 @@ Time path follower: path_executer/PathFollower
 
 <!--**********laser people detection *****-->
 <include file="$(find proxemics_anytimerrts)/launch/gazebo_simulation/people_detection/laser_people_detector.launch" >
-  <arg name="scan_topic" value="/scan_relay" />
+  <arg name="scan_topic" value="/scan" />
 </include>
-
+<!--
 <include file="$(find proxemics_anytimerrts)/launch/gazebo_simulation/people_detection/people_tracking.launch" />
 
 <include file="$(find proxemics_anytimerrts)/launch/gazebo_simulation/people_detection/group_tracking.launch" />
-
+-->
 
 <!-- ******* Optional: Octomap ******-->
 <node pkg="octomap_server" type="octomap_server_node" name="octomap_server_node">

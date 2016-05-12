@@ -17,10 +17,7 @@
        <param name="frame_id" type="string" value="hokuyo_link" />
    </node>
 
-   <!-- ****** turn on odometer ********** -->
-<!--
-   <node pkg="odom_base_pubisher" type="odom_base_pubisher_node" name="odom_base_pubisher_node"/>
--->
+
    <!-- ******* Turn on teleoperation on keyboard ******* -->
    <group if="$(arg teleop)">
        <node pkg="teleop_twist_keyboard" type="teleop_twist_keyboard.py" name="teleop_twist_keyboard"/>
@@ -56,7 +53,7 @@
 <!-- *************** Inputs ****************-->
 <arg name="in_odom" default="/odom" />
 <!--<arg name="in_odom" default="/odometry/filtered" />-->
-<arg name="scan_topic" default="/scan_relay" />
+<arg name="scan_topic" default="/scan" />
 <arg name="overall_out_vel" default="/cmd_vel" />
 <arg name="cloud_in" default="/camera/depth_registered/points" />
 
@@ -79,7 +76,7 @@ Time path follower: path_executer/PathFollower
 -->
 
 <arg name="global_planner" default="anytimeRRTs/AnytimeRRTsROS"/>
-<arg name="local_planner" default="pose_follower/PoseFollower" />
+<arg name="local_planner" default="teb_local_planner/TebLocalPlannerROS" />
 
 <!-- ******** RGBD Odometry ********* -->
 <!--
@@ -109,22 +106,27 @@ Time path follower: path_executer/PathFollower
 
 
 <!--********* ekf sensor fusion ******** -->
-<!--
 <include file="$(find proxemics_anytimerrts)/launch/realBeebotLaunch/real_ekf_estimation.launch" >
-    <arg name="wh_odom" value="$(arg in_odom)" />
+    <arg name="wh_odom" value="/odom" />
 </include>
--->
+
 
 
 <!-- ******** move_base ******** -->
 
+<<<<<<< HEAD
 <remap from="/odom" to="$(arg in_odom)" />
 <include file="$(find proxemics_anytimerrts)/launch/realBeebotLaunch/real_move_base.launch" if="$(arg no_teb)">
   <arg name="scan_topic" value="$(arg scan_topic)" />
+=======
+<remap from="/odom" to="/odometry/filtered" />
+<include file="$(find proxemics_anytimerrts)/launch/realBeebotLaunch/real_move_base.launch" >
+  <arg name="scan_topic"     value="$(arg scan_topic)" />
+>>>>>>> 9cc02abef1fe151b28e449c7e3d3a1f454d02fd8
   <arg name="global_planner" value="$(arg global_planner)" />
   <arg name="local_planner"  value="$(arg local_planner)" />
   <arg name="output_vel"     value="cmd_vel_mux/nav_cmd_vel" />
-  <arg name="odom_in"        value="$(arg in_odom)" />
+  <arg name="odom_in"        value="/odometry/filtered" />
 </include>
 
 <!--Original SBPL planner-->
@@ -135,7 +137,7 @@ Time path follower: path_executer/PathFollower
 <!--
 <remap from="/cmd_vel" to="cmd_vel_mux/nav_cmd_vel" />
 <remap from="/odom" to="$(arg in_odom)" />
-<remap from="/laser/scan" to="/beebot/laser/scan" />
+<remap from="/laser/scan" to="/scan" />
 <include file="$(find teb_local_planner)/launch/move_base.launch" />
 -->
 
@@ -148,16 +150,9 @@ Time path follower: path_executer/PathFollower
   <arg name="raw_cmd_vel_topic"     value="cmd_vel_mux/output"/>                      <!--overall pu topic: related to cmd_vel_mux's published topic -->
   <arg name="smooth_cmd_vel_topic"  value="$(arg overall_out_vel)"/>                  <!--publish topic-->
   <arg name="robot_cmd_vel_topic"   value="cmd_vel_mux/output"/>                      <!--subscribed topic-->
-  <arg name="odom_topic"            value="$(arg in_odom)"/>                          <!--subscribed topic-->
+  <arg name="odom_topic"            value="/odometry/filtered"/>                          <!--subscribed topic-->
 </include>
 
-<!-- ******* Optional: Octomap ******-->
-<!--
-<node pkg="octomap_server" type="octomap_server_node" name="octomap_server_node">
-  <param name="frame_id"         value="map" />
-  <param name="base_frame_id"    value="base_link" />
-  <remap from="cloud_in"         to="$(arg cloud_in)" />
-</node>
--->
+
 
 </launch>
