@@ -114,15 +114,9 @@ Time path follower: path_executer/PathFollower
 
 <!-- ******** move_base ******** -->
 
-<<<<<<< HEAD
 <remap from="/odom" to="$(arg in_odom)" />
-<include file="$(find proxemics_anytimerrts)/launch/realBeebotLaunch/real_move_base.launch" if="$(arg no_teb)">
-  <arg name="scan_topic" value="$(arg scan_topic)" />
-=======
-<remap from="/odom" to="/odometry/filtered" />
-<include file="$(find proxemics_anytimerrts)/launch/realBeebotLaunch/real_move_base.launch" >
+<include file="$(find proxemics_anytimerrts)/launch/realBeebotLaunch/real_move_base.launch" if="$(arg no_teb)" >
   <arg name="scan_topic"     value="$(arg scan_topic)" />
->>>>>>> 9cc02abef1fe151b28e449c7e3d3a1f454d02fd8
   <arg name="global_planner" value="$(arg global_planner)" />
   <arg name="local_planner"  value="$(arg local_planner)" />
   <arg name="output_vel"     value="cmd_vel_mux/nav_cmd_vel" />
