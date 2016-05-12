@@ -75,7 +75,7 @@ Time path follower: path_executer/PathFollower
 -->
 
 <arg name="global_planner" default="anytimeRRTs/AnytimeRRTsROS"/>
-<arg name="local_planner" default="teb_local_planner/TebLocalPlannerROS" />
+<arg name="local_planner" default="dwa_local_planner/DWAPlannerROS" />
 
 <!-- ******** RGBD Odometry ********* -->
 <!--
