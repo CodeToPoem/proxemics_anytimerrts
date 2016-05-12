@@ -24,7 +24,8 @@
 
   <!--******* Safety Controller ******* -->
   <include file="$(find proxemics_anytimerrts)/launch/gazebo_simulation/move_base/cob_collision_velocity_filter.launch" >
-     <arg name="in_cmd_vel"  value="/cmd_vel_mux/nav_cmd_vel" />
+     <!--<arg name="in_cmd_vel"  value="/cmd_vel_mux/nav_cmd_vel" />-->
+     <arg name="in_cmd_vel"  value="/cmd_vel_mux/key_cmd_vel" />
      <arg name="out_cmd_vel" value="/cmd_vel_mux/cmd_vel_safety" />
   </include>
 
