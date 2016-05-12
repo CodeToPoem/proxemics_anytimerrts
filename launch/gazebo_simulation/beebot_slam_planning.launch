@@ -22,8 +22,8 @@ Pose follower: pose_follower/PoseFollower
 Time path follower: path_executer/PathFollower
 -->
 
-<arg name="global_planner" default="SBPLLatticePlanner"/>
-<arg name="local_planner" default="pose_follower/PoseFollower" />
+<arg name="global_planner" default="anytimeRRTs/AnytimeRRTsROS"/>
+<arg name="local_planner" default="teb_local_planner/TebLocalPlannerROS" />
 
 <!--<arg name="in_odom" default="/beebot_diff_drive_controller/odom" />-->
 <arg name="in_odom" default="/odometry/filtered" />
@@ -41,6 +41,11 @@ Time path follower: path_executer/PathFollower
 
 <arg name="in_env" default="$(find proxemics_anytimerrts)/maps/gazebo_map/my_2nd_test_map.world"/>
 <!--<arg name="map_file" default="$(find proxemics_anytimerrts)/maps/gazebo_map/new_sim_map/new_sim_map.yaml" />-->
+
+
+<!-- ****** Spawn people into Gazebo ********* -->
+<node name="spawn_person1" pkg="gazebo_ros" type="spawn_model" args="-file $(find social_nav_simulation)/gazebo/models/human/walking.sdf -sdf -x 1.9 -y 0.2 -model person1" />
+<node name="spawn_person2" pkg="gazebo_ros" type="spawn_model" args="-file $(find social_nav_simulation)/gazebo/models/human/standing.sdf -sdf -x -2 -y -2.2 -Y 1.56 -model person2" />
 
 <!-- ********* Gazebo & Rviz ********* -->
 <include file="$(find simulation_tobot)/beebot_control/launch/beebot_control.launch">
@@ -92,10 +97,10 @@ Time path follower: path_executer/PathFollower
 <!-- ******** Velocity Regulator with safety measure ***** -->
 <include file="$(find proxemics_anytimerrts)/launch/gazebo_simulation/move_base/kobuki_controller_system.launch" >
   <!--Velocity Smoother's settings-->
-  <arg name="raw_cmd_vel_topic"     default="cmd_vel_mux/output"/>                      <!--subscribed topic: related to cmd_vel_mux's published topic -->
-  <arg name="smooth_cmd_vel_topic"  default="/beebot_diff_drive_controller/cmd_vel"/>   <!--publish topic-->
-  <arg name="robot_cmd_vel_topic"   default="cmd_vel_mux/output"/>                      <!--subscribed topic-->
-  <arg name="odom_topic"            default="$(arg in_odom)"/>                          <!--subscribed topic-->
+  <arg name="raw_cmd_vel_topic"     value="cmd_vel_mux/output"/>                      <!--subscribed topic: related to cmd_vel_mux's published topic -->
+  <arg name="smooth_cmd_vel_topic"  value="/beebot_diff_drive_controller/cmd_vel"/>   <!--publish topic-->
+  <arg name="robot_cmd_vel_topic"   value="cmd_vel_mux/output"/>                      <!--subscribed topic-->
+  <arg name="odom_topic"            value="$(arg in_odom)"/>                          <!--subscribed topic-->
 </include>
 
 <!-- ******** constant velocity prediction node ********** -->
@@ -109,4 +114,17 @@ Time path follower: path_executer/PathFollower
   <param name="base_frame_id"    value="base_link" />
   <remap from="cloud_in" to="/camera/depth/points" />
 </node>
+
+<!-- ****** People detection and tracking ********* -->
+<include file="$(find proxemics_anytimerrts)/launch/gazebo_simulation/people_detection/laser_people_detector.launch" >
+  <arg name="scan_topic" value="/beebot/laser/scan" />
+</include>
+
+<include file="$(find proxemics_anytimerrts)/launch/gazebo_simulation/people_detection/laser_people_tracker.launch" >
+   <arg name="scan_topic" value="/beebot/laser/scan" />
+</include>
+
+<include file="$(find proxemics_anytimerrts)/launch/gazebo_simulation/people_detection/people_tracking.launch" />
+
+<include file="$(find proxemics_anytimerrts)/launch/gazebo_simulation/people_detection/group_tracking.launch" />
 </launch>
