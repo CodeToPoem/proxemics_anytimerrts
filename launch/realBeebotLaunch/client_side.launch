@@ -11,15 +11,39 @@ rviz
 -->
 
 
-<arg name="in_odom" default="/odom_relay" />
-<!--<arg name="in_odom" default="/odometry/filtered" />-->
-<arg name="scan_topic" default="/scan_relay" />
+<arg name="in_odom" default="/odometry/filtered" />
+<arg name="scan_topic" default="/scan" />
 <arg name="overall_out_vel" default="/cmd_vel" />
 <arg name="cloud_in" default="/camera/depth_registered/points" />
 
 
+<!--**********Auxiliary planner ***************-->
+<!--
+Global planners:
+Dijkstra: (blank, default)
+AD*: SBPLLatticePlanner
+ADRRT*: anytimeRRTs/AnytimeRRTsROS
+Social Aware ADRRT*: proxemics_anytimerrts/ProxemicsAnytimeRRTs
+lattice_planner (A*): lattice_planner/TBPlanner
 
-
+Local Planners:
+Dynamic Window Algorithm: dwa_local_planner/DWAPlannerROS
+path follower: path_executer/PathFollower
+Timed Elastic Band: teb_local_planner/TebLocalPlannerROS
+Pose follower: pose_follower/PoseFollower
+Time path follower: path_executer/PathFollower
+-->
+<arg name="global_planner" default="anytimeRRTs/AnytimeRRTsROS"/>
+<arg name="local_planner" default="teb_local_planner/TebLocalPlannerROS" />
+<!--if you want to use teb_local_planner, uncomment it here and set on the robot side arg no_teb to false-->
+<remap from="/odom" to="$(arg in_odom)" />
+<include file="$(find proxemics_anytimerrts)/launch/realBeebotLaunch/real_move_base.launch">
+  <arg name="scan_topic" value="$(arg scan_topic)" />
+  <arg name="global_planner" value="$(arg global_planner)" />
+  <arg name="local_planner"  value="$(arg local_planner)" />
+  <arg name="output_vel"     value="cmd_vel_mux/nav_cmd_vel" />
+  <arg name="odom_in"        value="$(arg in_odom)" />
+</include>
  
 
 
@@ -47,8 +71,14 @@ rviz
 <include file="$(find proxemics_anytimerrts)/launch/gazebo_simulation/people_detection/group_tracking.launch" />
 -->
 
+<!-- ******* Optional: Octomap ******-->
+<node pkg="octomap_server" type="octomap_server_node" name="octomap_server_node">
+  <param name="frame_id"         value="map" />
+  <param name="base_frame_id"    value="base_link" />
+  <remap from="cloud_in"         to="$(arg cloud_in)" />
+</node>
 
 <!--********** Rviz ************* -->
-<arg name="rvizconfig" default="$(find proxemics_anytimerrts)/launch/rviz_config/slam_planning.rviz" />
+<arg name="rvizconfig" default="$(find proxemics_anytimerrts)/launch/rviz_config/human_aware_nav.rviz" />
 <node name="rviz" pkg="rviz" type="rviz" args="-d $(arg rvizconfig)" required="true" />
 </launch>
