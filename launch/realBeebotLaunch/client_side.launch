@@ -38,7 +38,13 @@ rviz
 
 
 <!--**********laser people detection *****-->
-<include file="$(find proxemics_anytimerrts)/launch/gazebo_simulation/people_detection/laser_people_detector.launch" />
+<include file="$(find proxemics_anytimerrts)/launch/gazebo_simulation/people_detection/laser_people_detector.launch" >
+  <arg name="scan_topic" value="/scan_relay" />
+</include>
+
+<include file="$(find proxemics_anytimerrts)/launch/gazebo_simulation/people_detection/people_tracking.launch" />
+
+<include file="$(find proxemics_anytimerrts)/launch/gazebo_simulation/people_detection/group_tracking.launch" />
 
 
 
