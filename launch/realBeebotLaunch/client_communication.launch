@@ -1,0 +1,42 @@
+<launch>
+<!--Visualization and SLAM nodes use same data, so just subscribe once and relay messages -->
+<arg name="r_odom_in"        default="/odom_throttled" />
+<arg name="r_odom_relay"     default="/odom_th_relay"  />
+<arg name="r_scan_in"        default="/scan_throttled" />
+<arg name="r_scan_relay"     default="/scan_th_relay" />
+<arg name="r_camInfo_in"     default="/cam_info_throttled" />
+<arg name="r_camInfo_relay"  default="/camera_info_th_relay" />
+
+<arg name="r_rgb_in"         default="/rgb_image_throttled" />  <!--~/theora-->
+<arg name="r_rgb_relay"      default="/rgb_image_th_relay" />
+<arg name="r_dpth_in"        default="/depth_throttled" />  <!--~/compressedDepth-->
+<arg name="r_dpth_relay"     default="/depth_image_th_relay" />
+
+<arg name="cmd_vel_in"       default="/cmd_vel" />
+<arg name="cmd_vel_out_th"   default="/cmd_vel_th" />
+<arg name="cmd_vel_th_rate"  default="1" />
+
+<!-- ******** Relay *********** -->
+<!--Visualization and SLAM nodes use same data, so just subscribe once and relay messages -->
+<node name="odom_relay" type="relay" pkg="topic_tools" 
+      args="$(arg r_odom_in) $(arg r_odom_relay)" />
+
+<node name="scan_relay" type="relay" pkg="topic_tools" 
+      args="$(arg r_scan_in) $(arg r_scan_relay)" />
+
+<node name="camera_info_relay" type="relay" pkg="topic_tools" 
+      args="$(arg r_camInfo_in) $(arg r_camInfo_relay)" />
+
+<node name="republish_rgb" type="republish" pkg="image_transport" 
+      args="theora in:=$(arg r_rgb_in) out:=$(arg r_rgb_relay)" />
+
+
+<node name="republish_depth" type="republish" pkg="image_transport"
+      args="compressedDepth in:=$(arg r_dpth_in) out:=$(arg r_dpth_relay)" />
+
+<!--*********** Throttle for cmd_vel-******* -->
+<node pkg="topic_tools" type="throttle" name="cmd_vel_throttle" 
+      args="messages $(arg cmd_vel_in)
+            $(arg cmd_vel_th_rate)
+            $(arg cmd_vel_out_th)" />
+</launch>

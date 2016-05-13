@@ -1,6 +1,5 @@
 <launch>
    <arg name="teleop" default="false"/>
-   <arg name="no_teb" default="true"/>  <!--since teb_local_planner cannot be installed and compiled in Hydro, if you want to use this local planner, set this setting to false and comment out the move_base on the client side.-->
 
    <!-- ******* launch robot tf frames ******* -->
    <include file="$(find proxemics_anytimerrts)/launch/my_start_tf_test.launch" />
@@ -29,18 +28,27 @@
 
 
    <!-- ********* Data throttle ********* -->
-   <arg name="cam_ns" default="camera" />
-   <node pkg="nodelet" type="nodelet" name="data_throttle" args="load rtabmap/data_throttle camera_nodelet_manager" output="screen">
-      <param name="rate" type="double" value="5.0" />
-      <!--inputs-->
-      <remap from="rgb/image_in"         to="$(arg cam_ns)/rgb/image_rect_color" />
-      <remap from="depth/image_in"       to="$(arg cam_ns)/depth/image_rect" />
-      <remap from="rgb/camera_info_in"   to="$(arg cam_ns)/rgb/camera_info" />
-      <!--outputs-->
-      <remap from="rgb/image_out"        to="$(arg cam_ns)/data_throttled_image" />
-      <remap from="depth/image_out"      to="$(arg cam_ns)/data_throttled_image_depth" />
-      <remap from="rgb/camera_info_out"  to="$(arg cam_ns)/data_throttled_camera_info" />
-   </node>
+   <include file="$(find proxemics_anytimerrts)/launch/realBeebotLaunch/robot_communication.launch" >
+     <arg name="laser_th_rate"      value="1" />
+     <arg name="rgb_th_rate"        value="5" />
+     <arg name="depth_th_rate"      value="5" />
+     <arg name="cam_info_th_rate"   value="5" />
+     <arg name="odom_th_rate"       value="5" />
+     <arg name="pointcloud_th_rate" value="5" />
+ 
+     <arg name="scan_in"            value="/scan" />
+     <arg name="scan_out_th"        value="/scan_throttled" />
+     <arg name="rgb_in"             value="camera/rgb/image_rect_color/theora" />
+     <arg name="rgb_out_th"         value="/rgb_image_throttled/theora" />
+     <arg name="depth_in"           value="/camera/depth/image_rect_raw/compresedDepth" />
+     <arg name="depth_out_th"       value="/depth_throttled/compressedDepth" />
+     <arg name="camInfo_in"         value="/camera/rgb/camera_info" />
+     <arg name="camInfo_out_th"     value="/cam_info_throttled" />
+     <arg name="odom_in"            value="/odometry/filtered" />
+     <arg name="odom_out_th"        value="/odom_throttled" />
+     <arg name="rgbd_in"            value="/camera/depth_registered/points"/>
+     <arg name="rgbd_out_th"        value="/pointclouds_throttled"/>
+</include>
   
 <!-- ******** SLAM *************-->
 <include file="$(find mobile_safeguard_primitive)/launch/navigation/utils/SLAM/hector_slam.launch" >
@@ -74,10 +82,10 @@ Timed Elastic Band: teb_local_planner/TebLocalPlannerROS
 Pose follower: pose_follower/PoseFollower
 Time path follower: path_executer/PathFollower
 -->
-
+<!--
 <arg name="global_planner" default="anytimeRRTs/AnytimeRRTsROS"/>
 <arg name="local_planner" default="dwa_local_planner/DWAPlannerROS" />
-
+-->
 <!-- ******** RGBD Odometry ********* -->
 <!--
   <node pkg="rtabmap_ros" type="rgbd_odometry" name="rgbd_odometry" output="screen">    
@@ -113,15 +121,16 @@ Time path follower: path_executer/PathFollower
 
 
 <!-- ******** move_base ******** -->
-
+<!--
 <remap from="/odom" to="$(arg in_odom)" />
-<include file="$(find proxemics_anytimerrts)/launch/realBeebotLaunch/real_move_base.launch" if="$(arg no_teb)" >
+<include file="$(find proxemics_anytimerrts)/launch/realBeebotLaunch/real_move_base.launch" >
   <arg name="scan_topic"     value="$(arg scan_topic)" />
   <arg name="global_planner" value="$(arg global_planner)" />
   <arg name="local_planner"  value="$(arg local_planner)" />
   <arg name="output_vel"     value="cmd_vel_mux/nav_cmd_vel" />
   <arg name="odom_in"        value="/odometry/filtered" />
 </include>
+-->
 
 <!--Original SBPL planner-->
 <!--

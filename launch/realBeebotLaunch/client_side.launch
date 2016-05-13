@@ -33,9 +33,10 @@ Timed Elastic Band: teb_local_planner/TebLocalPlannerROS
 Pose follower: pose_follower/PoseFollower
 Time path follower: path_executer/PathFollower
 -->
+<!--
 <arg name="global_planner" default="anytimeRRTs/AnytimeRRTsROS"/>
 <arg name="local_planner" default="teb_local_planner/TebLocalPlannerROS" />
-<!--if you want to use teb_local_planner, uncomment it here and set on the robot side arg no_teb to false-->
+
 <remap from="/odom" to="$(arg in_odom)" />
 <include file="$(find proxemics_anytimerrts)/launch/realBeebotLaunch/real_move_base.launch">
   <arg name="scan_topic" value="$(arg scan_topic)" />
@@ -44,20 +45,27 @@ Time path follower: path_executer/PathFollower
   <arg name="output_vel"     value="cmd_vel_mux/nav_cmd_vel" />
   <arg name="odom_in"        value="$(arg in_odom)" />
 </include>
- 
+--> 
 
 
-<!-- ******** Relay *********** -->
-<!--Visualization and SLAM nodes use same data, so just subscribe once and relay messages -->
-<node name="odom_relay" type="relay" pkg="topic_tools" args="/odom /odom_relay" />
+<!-- ******** Relay and Throttle*********** -->
+<include file="$(find proxemics_anytimerrts)/launch/realBeebotLaunch/client_communication.launch" >
+   <arg name="r_odom_in"        value="/odom_throttled" />
+   <arg name="r_odom_relay"     value="/odom_th_relay"  />
+   <arg name="r_scan_in"        value="/scan_throttled" />
+   <arg name="r_scan_relay"     value="/scan_th_relay" />
+   <arg name="r_camInfo_in"     value="/cam_info_throttled" />
+   <arg name="r_camInfo_relay"  value="/camera_info_th_relay" />
 
-<node name="scan_relay" type="relay" pkg="topic_tools" args="/scan /scan_relay" />
+   <arg name="r_rgb_in"         value="/rgb_image_throttled" />  <!--~/theora-->
+   <arg name="r_rgb_relay"      value="/rgb_image_th_relay" />
+   <arg name="r_dpth_in"        value="/depth_throttled" />  <!--~/compressedDepth-->
+   <arg name="r_dpth_relay"     value="/depth_image_th_relay" />
 
-<node name="camera_info_relay" type="relay" pkg="topic_tools" args="camera/data_throttled_camera_info /camera/data_throttled_camera_info_relay" />
-
-<node name="republish_rgb" type="republish" pkg="image_transport" args="theora in:=/camera/data_throttled_image raw out:=/camera/data_throttled_image_relay" />
-
-<node name="republish_depth" type="republish" pkg="image_transport" args="compressedDepth in:=/camera//data_throttled_image_depth raw out:=/camera/data_throttled_image_depth_relay" />
+   <arg name="cmd_vel_in"       value="/cmd_vel" />
+   <arg name="cmd_vel_out_th"   value="/cmd_vel_th" />
+   <arg name="cmd_vel_th_rate"  value="1" />
+</include>
 
 
 
@@ -65,11 +73,11 @@ Time path follower: path_executer/PathFollower
 <include file="$(find proxemics_anytimerrts)/launch/gazebo_simulation/people_detection/laser_people_detector.launch" >
   <arg name="scan_topic" value="/scan" />
 </include>
-<!--
+
 <include file="$(find proxemics_anytimerrts)/launch/gazebo_simulation/people_detection/people_tracking.launch" />
 
 <include file="$(find proxemics_anytimerrts)/launch/gazebo_simulation/people_detection/group_tracking.launch" />
--->
+
 
 <!-- ******* Optional: Octomap ******-->
 <node pkg="octomap_server" type="octomap_server_node" name="octomap_server_node">
