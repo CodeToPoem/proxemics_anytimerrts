@@ -19,7 +19,7 @@ obstacles:
      observation_sources: scan 
      scan: 
        data_type: LaserScan
-       topic: /scan
+       topic: /scan_th_relay
        sensor_frame: /hokuyo_link 
        marking: true 
        clearing: true 
@@ -31,7 +31,7 @@ inflater:
      observation_sources: scan 
      scan: 
         data_type: LaserScan
-        topic: /scan 
+        topic: /scan_th_relay 
         sensor_frame: /hokuyo_link 
         marking: true 
         clearing: true 
