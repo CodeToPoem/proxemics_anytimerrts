@@ -7,10 +7,14 @@
 <arg name="r_camInfo_in"     default="/cam_info_throttled" />
 <arg name="r_camInfo_relay"  default="/camera_info_th_relay" />
 
-<arg name="r_rgb_in"         default="/rgb_image_throttled" />  <!--~/theora-->
+<arg name="r_rgb_in"         default="/rgb_image_throttled" /> 
+<arg name="r_rgb_theora_relay" default="/rgb/relay_th_relay" />
 <arg name="r_rgb_relay"      default="/rgb_image_th_relay" />
-<arg name="r_dpth_in"        default="/depth_throttled" />  <!--~/compressedDepth-->
+<arg name="r_dpth_in"        default="/depth_throttled" />  
 <arg name="r_dpth_relay"     default="/depth_image_th_relay" />
+<arg name="r_dpth_theora_relay" default="/depth_theora_th_relay" />
+<arg name="pointcloud_in"    default="/pointclouds_throttled" />
+<arg name="pointcloud_relay" default="/pointcloud_th_relay" />
 
 <arg name="cmd_vel_in"       default="/cmd_vel" />
 <arg name="cmd_vel_out_th"   default="/cmd_vel_th" />
@@ -27,12 +31,18 @@
 <node name="camera_info_relay" type="relay" pkg="topic_tools" 
       args="$(arg r_camInfo_in) $(arg r_camInfo_relay)" />
 
+<node name="pointcloud_relay" type="relay" pkg="topic_tools"
+      args="$(arg pointcloud_in) $(arg pointcloud_relay)" />
+
+<node name="republish_rgb_theora" type="republish" pkg="image_transport" 
+      args="theora in:=$(arg r_rgb_in) raw out:=$(arg r_rgb_theora_relay)"/>
 <node name="republish_rgb" type="republish" pkg="image_transport" 
-      args="theora in:=$(arg r_rgb_in) out:=$(arg r_rgb_relay)" />
+      args="in:=$(arg r_rgb_in) out:=$(arg r_rgb_relay)" />
 
-
+<node name="republish_depth_compressed" type="republish" pkg="image_transport"
+      args="compressedDepth in:=$(arg r_dpth_in) raw out:=$(arg r_dpth_theora_relay)" />
 <node name="republish_depth" type="republish" pkg="image_transport"
-      args="compressedDepth in:=$(arg r_dpth_in) out:=$(arg r_dpth_relay)" />
+      args="in:=$(arg r_dpth_in) out:=$(arg r_dpth_relay)" />
 
 <!--*********** Throttle for cmd_vel-******* -->
 <node pkg="topic_tools" type="throttle" name="cmd_vel_throttle" 
