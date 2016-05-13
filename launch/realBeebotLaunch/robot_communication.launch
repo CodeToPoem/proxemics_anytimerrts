@@ -39,7 +39,7 @@
 <node pkg="topic_tools" type="throttle" name="cam_info_throttle"
       args="messages $(arg camInfo_in)
             $(arg cam_info_th_rate)
-            $(arg ca,Info_out_th)" />
+            $(arg camInfo_out_th)" />
 <node pkg="topic_tools" type="throttle" name="odom_throttle"
       args="messages $(arg odom_in)
             $(arg odom_th_rate)
