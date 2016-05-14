@@ -136,7 +136,9 @@ Time path follower: path_executer/PathFollower
   <arg name="output_vel"     value="cmd_vel_mux/nav_cmd_vel" />
 </include>-->
 <!--Original SBPL planner-->
-
+<remap from="/cmd_vel" to="cmd_vel_mux/nav_cmd_vel" />
+<remap from="/odom" to="/odometry/filtered" />
+<remap from="/hokuyo_scan" to="/scan" />
 <include file="$(find sbpl_lattice_planner)/launch/move_base_sbpl.launch" />
 
 <!--Dijkstra global planner + TEB local planner -->
