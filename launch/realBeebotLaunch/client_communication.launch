@@ -1,7 +1,7 @@
 <launch>
 <!--Visualization and SLAM nodes use same data, so just subscribe once and relay messages -->
-<arg name="r_odom_in"        default="/odom_throttled" />
-<arg name="r_odom_relay"     default="/odom_th_relay"  />
+<arg name="r_odom_in"        default="/odometry/filtered" />
+<arg name="r_odom_relay"     default="/odom_relay"  />
 <arg name="r_scan_in"        default="/scan_throttled" />
 <arg name="r_scan_relay"     default="/scan_th_relay" />
 <arg name="r_camInfo_in"     default="/cam_info_throttled" />

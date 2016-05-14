@@ -48,8 +48,8 @@
      <arg name="depth_compress_out_th" value="/depth_throttled/compressedDepth" />
      <arg name="camInfo_in"         value="/camera/rgb/camera_info" />
      <arg name="camInfo_out_th"     value="/cam_info_throttled" />
-     <arg name="odom_in"            value="/odometry/filtered" />
-     <arg name="odom_out_th"        value="/odom_throttled" />
+     <!--<arg name="odom_in"            value="/odometry/filtered" />
+     <arg name="odom_out_th"        value="/odom_throttled" />-->
      <arg name="rgbd_in"            value="/camera/depth_registered/points"/>
      <arg name="rgbd_out_th"        value="/pointclouds_throttled"/>
 
