@@ -126,6 +126,7 @@ Time path follower: path_executer/PathFollower
 <arg name="local_planner" default="pose_follower/PoseFollower" />
 
 <!--<remap from="/odom" to="/odom_th_relay" />-->
+<!--
 <remap from="/odom" to="/odometry/filtered" />
 <include file="$(find proxemics_anytimerrts)/launch/realBeebotLaunch/real_move_base.launch">
   <arg name="scan_topic"     value="/scan" />
@@ -133,11 +134,11 @@ Time path follower: path_executer/PathFollower
   <arg name="global_planner" value="$(arg global_planner)" />
   <arg name="local_planner"  value="$(arg local_planner)" />
   <arg name="output_vel"     value="cmd_vel_mux/nav_cmd_vel" />
-</include>
+</include>-->
 <!--Original SBPL planner-->
-<!--
+
 <include file="$(find sbpl_lattice_planner)/launch/move_base_sbpl.launch" />
--->
+
 <!--Dijkstra global planner + TEB local planner -->
 <!--
 <remap from="/cmd_vel" to="cmd_vel_mux/nav_cmd_vel" />

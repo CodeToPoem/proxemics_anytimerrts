@@ -55,7 +55,7 @@ Time path follower: path_executer/PathFollower
 
 
 <!-- ******** Relay and Throttle*********** -->
-<include file="$(find proxemics_anytimerrts)/launch/realBeebotLaunch/client_communication.launch" >
+<!--<include file="$(find proxemics_anytimerrts)/launch/realBeebotLaunch/client_communication.launch" >
    <arg name="r_odom_in"          value="/odometry/filtered" />
    <arg name="r_odom_relay"       value="/odom_relay"  />
    <arg name="r_scan_in"          value="/scan_throttled" />
@@ -72,15 +72,13 @@ Time path follower: path_executer/PathFollower
    <arg name="pointcloud_in"      value="/pointclouds_throttled" />
    <arg name="pointcloud_relay"   value="/pointcloud_th_relay" />
 
-   <!--<arg name="cmd_vel_in"         value="/cmd_vel" />
-   <arg name="cmd_vel_out_th"     value="/cmd_vel_th" />
-   <arg name="cmd_vel_th_rate"    value="1" />-->
 </include>
-
+-->
 
 
 
 <!--**********laser people detection *****-->
+<!--
 <include file="$(find proxemics_anytimerrts)/launch/gazebo_simulation/people_detection/laser_people_detector.launch" >
   <arg name="scan_topic" value="/scan_th_relay" />
 </include>
@@ -88,7 +86,7 @@ Time path follower: path_executer/PathFollower
 <include file="$(find proxemics_anytimerrts)/launch/gazebo_simulation/people_detection/people_tracking.launch" />
 
 <include file="$(find proxemics_anytimerrts)/launch/gazebo_simulation/people_detection/group_tracking.launch" />
-
+-->
 
 <!-- ******* Optional: Octomap ******-->
 <node pkg="octomap_server" type="octomap_server_node" name="octomap_server_node">
