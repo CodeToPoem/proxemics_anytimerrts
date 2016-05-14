@@ -35,7 +35,7 @@ Time path follower: path_executer/PathFollower
 <remap from="/odom" to="/odom_th_relay" />
 <include file="$(find proxemics_anytimerrts)/launch/realBeebotLaunch/real_move_base.launch">
   <arg name="scan_topic"     value="/scan_th_relay" />
-  <arg name="odom_in"        value="/odom_th_relay" />
+  <arg name="odom_in"        value="/odom_relay" />
   <arg name="global_planner" value="$(arg global_planner)" />
   <arg name="local_planner"  value="$(arg local_planner)" />
   <arg name="output_vel"     value="cmd_vel_raw" />
@@ -71,9 +71,9 @@ Time path follower: path_executer/PathFollower
    <arg name="pointcloud_in"      value="/pointclouds_throttled" />
    <arg name="pointcloud_relay"   value="/pointcloud_th_relay" />
 
-   <arg name="cmd_vel_in"         value="/cmd_vel" />
+   <!--<arg name="cmd_vel_in"         value="/cmd_vel" />
    <arg name="cmd_vel_out_th"     value="/cmd_vel_th" />
-   <arg name="cmd_vel_th_rate"    value="1" />
+   <arg name="cmd_vel_th_rate"    value="1" />-->
 </include>
 
 

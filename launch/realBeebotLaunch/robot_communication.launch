@@ -19,8 +19,8 @@
 <arg name="depth_compress_out_th" default="/depth_throttled/compressedDepth" />
 <arg name="camInfo_in"         default="/camera/rgb/camera_info" />
 <arg name="camInfo_out_th"     default="/cam_info_throttled" />
-<arg name="odom_in"            default="/odom" />
-<arg name="odom_out_th"        default="/odom_throttled" />
+<!--<arg name="odom_in"            default="/odom" />
+<arg name="odom_out_th"        default="/odom_throttled" />-->
 <arg name="rgbd_in"            default="/camera/depth_registered/points"/>
 <arg name="rgbd_out_th"        default="/pointclouds_throttled"/>
 
@@ -52,10 +52,10 @@
       args="messages $(arg camInfo_in)
             $(arg cam_info_th_rate)
             $(arg camInfo_out_th)" />
-<node pkg="topic_tools" type="throttle" name="odom_throttle"
+<!--<node pkg="topic_tools" type="throttle" name="odom_throttle"
       args="messages $(arg odom_in)
             $(arg odom_th_rate)
-            $(arg odom_out_th)" />
+            $(arg odom_out_th)" />-->
 <node pkg="topic_tools" type="throttle" name="pointcloud_throttle"
       args="messages $(arg rgbd_in)
             $(arg odom_th_rate)
@@ -66,19 +66,4 @@
       args="$(arg cmd_vel_in) $(arg cmd_vel_relay)"/>
 
 
-<!--**********nodelet_data_throttled************-->
-<!--
-   <arg name="cam_ns" default="camera" />
-   <node pkg="nodelet" type="nodelet" name="data_throttle" args="load rtabmap/data_throttle camera_nodelet_manager" output="screen">
-      <param name="rate" type="double" value="5.0" />
-
-      <remap from="rgb/image_in"         to="$(arg cam_ns)/rgb/image_rect_color" />
-      <remap from="depth/image_in"       to="$(arg cam_ns)/depth/image_rect" />
-      <remap from="rgb/camera_info_in"   to="$(arg cam_ns)/rgb/camera_info" />
-
-      <remap from="rgb/image_out"        to="$(arg cam_ns)/data_throttled_image" />
-      <remap from="depth/image_out"      to="$(arg cam_ns)/data_throttled_image_depth" />
-      <remap from="rgb/camera_info_out"  to="$(arg cam_ns)/data_throttled_camera_info" />
-   </node>
--->
 </launch>

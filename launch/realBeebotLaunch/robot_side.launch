@@ -53,7 +53,7 @@
      <arg name="rgbd_in"            value="/camera/depth_registered/points"/>
      <arg name="rgbd_out_th"        value="/pointclouds_throttled"/>
 
-     <arg name="cmd_vel_in"         value="/cmd_vel_th" />
+     <arg name="cmd_vel_in"         value="/cmd_vel_raw" />
      <arg name="cmd_vel_relay"      value="/cmd_vel_mux/nav_cmd_vel" />
 </include>
   

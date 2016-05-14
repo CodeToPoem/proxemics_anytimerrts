@@ -16,9 +16,11 @@
 <arg name="pointcloud_in"    default="/pointclouds_throttled" />
 <arg name="pointcloud_relay" default="/pointcloud_th_relay" />
 
+<!--
 <arg name="cmd_vel_in"       default="/cmd_vel" />
 <arg name="cmd_vel_out_th"   default="/cmd_vel_th" />
 <arg name="cmd_vel_th_rate"  default="1" />
+-->
 
 <!-- ******** Relay *********** -->
 <!--Visualization and SLAM nodes use same data, so just subscribe once and relay messages -->
@@ -45,8 +47,9 @@
       args="in:=$(arg r_dpth_in) out:=$(arg r_dpth_relay)" />
 
 <!--*********** Throttle for cmd_vel-******* -->
+<!--
 <node pkg="topic_tools" type="throttle" name="cmd_vel_throttle" 
       args="messages $(arg cmd_vel_in)
             $(arg cmd_vel_th_rate)
-            $(arg cmd_vel_out_th)" />
+            $(arg cmd_vel_out_th)" />-->
 </launch>
