@@ -28,18 +28,19 @@ Timed Elastic Band: teb_local_planner/TebLocalPlannerROS
 Pose follower: pose_follower/PoseFollower
 Time path follower: path_executer/PathFollower
 -->
-
+<!--
 <arg name="global_planner" default="anytimeRRTs/AnytimeRRTsROS"/>
 <arg name="local_planner" default="teb_local_planner/TebLocalPlannerROS" />
 
-<remap from="/odom" to="/odom_th_relay" />
+
+<remap from="/odom" to="/odometry/filtered" />
 <include file="$(find proxemics_anytimerrts)/launch/realBeebotLaunch/real_move_base.launch">
   <arg name="scan_topic"     value="/scan_th_relay" />
-  <arg name="odom_in"        value="/odom_relay" />
+  <arg name="odom_in"        value="/odometry_filtered" />
   <arg name="global_planner" value="$(arg global_planner)" />
   <arg name="local_planner"  value="$(arg local_planner)" />
   <arg name="output_vel"     value="cmd_vel_raw" />
-</include>
+</include>-->
 <!--Original SBPL planner-->
 <!--
 <include file="$(find sbpl_lattice_planner)/launch/move_base_sbpl.launch" />

@@ -65,13 +65,6 @@
 
 <!--**************************************************************-->
 
-<!-- *************** Inputs ****************-->
-<arg name="in_odom" default="/odom" />
-<!--<arg name="in_odom" default="/odometry/filtered" />-->
-<arg name="scan_topic" default="/scan" />
-<arg name="overall_out_vel" default="/cmd_vel" />
-<arg name="cloud_in" default="/camera/depth_registered/points" />
-
 
 <!-- ******** RGBD Odometry ********* -->
 <!--
@@ -110,11 +103,61 @@
 
 
 
+
+
+<!--**********trajectory planner ***************-->
+<!--
+Global planners:
+Dijkstra: (blank, default)
+AD*: SBPLLatticePlanner
+ADRRT*: anytimeRRTs/AnytimeRRTsROS
+Social Aware ADRRT*: proxemics_anytimerrts/ProxemicsAnytimeRRTs
+lattice_planner (A*): lattice_planner/TBPlanner
+
+Local Planners:
+Dynamic Window Algorithm: dwa_local_planner/DWAPlannerROS
+path follower: path_executer/PathFollower
+Timed Elastic Band: teb_local_planner/TebLocalPlannerROS
+Pose follower: pose_follower/PoseFollower
+Time path follower: path_executer/PathFollower
+-->
+
+<arg name="global_planner" default="anytimeRRTs/AnytimeRRTsROS"/>
+<arg name="local_planner" default="pose_follower/PoseFollower" />
+
+<!--<remap from="/odom" to="/odom_th_relay" />-->
+<remap from="/odom" to="/odometry/filtered" />
+<include file="$(find proxemics_anytimerrts)/launch/realBeebotLaunch/real_move_base.launch">
+  <arg name="scan_topic"     value="/scan" />
+  <arg name="odom_in"        value="/odometry_filtered" />
+  <arg name="global_planner" value="$(arg global_planner)" />
+  <arg name="local_planner"  value="$(arg local_planner)" />
+  <arg name="output_vel"     value="cmd_vel_mux/nav_cmd_vel" />
+</include>
+<!--Original SBPL planner-->
+<!--
+<include file="$(find sbpl_lattice_planner)/launch/move_base_sbpl.launch" />
+-->
+<!--Dijkstra global planner + TEB local planner -->
+<!--
+<remap from="/cmd_vel" to="cmd_vel_mux/nav_cmd_vel" />
+<remap from="/odom" to="$(arg in_odom)" />
+<remap from="/laser/scan" to="/scan" />
+<include file="$(find teb_local_planner)/launch/move_base.launch" />
+-->
+
+
+
+
+
+
+
+
 <!-- ******** Velocity Regulator with safety measure ***** -->
 <include file="$(find proxemics_anytimerrts)/launch/gazebo_simulation/move_base/kobuki_controller_system.launch" >
   <!--Velocity Smoother's settings-->
   <arg name="raw_cmd_vel_topic"     value="cmd_vel_mux/output"/>                      <!--overall pu topic: related to cmd_vel_mux's published topic -->
-  <arg name="smooth_cmd_vel_topic"  value="$(arg overall_out_vel)"/>                  <!--publish topic-->
+  <arg name="smooth_cmd_vel_topic"  value="/cmd_vel"/>                  <!--publish topic-->
   <arg name="robot_cmd_vel_topic"   value="cmd_vel_mux/output"/>                      <!--subscribed topic-->
   <arg name="odom_topic"            value="/odometry/filtered"/>                          <!--subscribed topic-->
 </include>
