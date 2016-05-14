@@ -88,6 +88,11 @@ Time path follower: path_executer/PathFollower
 <include file="$(find proxemics_anytimerrts)/launch/gazebo_simulation/people_detection/group_tracking.launch" />
 -->
 
+<!--Auxiliary teleop-->
+   <node pkg="teleop_twist_keyboard" type="teleop_twist_keyboard.py" name="teleop_twist_keyboard">
+     <remap from="/cmd_vel" to="/cmd_vel_mux/key_cmd_vel" />
+   </node>
+
 <!-- ******* Optional: Octomap ******-->
 <node pkg="octomap_server" type="octomap_server_node" name="octomap_server_node">
   <param name="frame_id"         value="map" />
