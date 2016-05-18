@@ -20,10 +20,11 @@ Dynamic Window Algorithm: dwa_local_planner/DWAPlannerROS
 Timed Elastic Band: teb_local_planner/TebLocalPlannerROS
 Pose follower: pose_follower/PoseFollower
 Time path follower: path_executer/PathFollower
+Elasic band Local planner: eband_local_planner/EBandPlannerROS
 -->
 
 <arg name="global_planner" default="anytimeRRTs/AnytimeRRTsROS"/>
-<arg name="local_planner" default="teb_local_planner/TebLocalPlannerROS" />
+<arg name="local_planner" default="eband_local_planner/EBandPlannerROS" />
 
 <!--<arg name="in_odom" default="/beebot_diff_drive_controller/odom" />-->
 <arg name="in_odom" default="/odometry/filtered" />

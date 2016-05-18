@@ -23,11 +23,12 @@
 
 
   <!--******* Safety Controller ******* -->
-  <include file="$(find proxemics_anytimerrts)/launch/gazebo_simulation/move_base/cob_collision_velocity_filter.launch" >
-     <!--<arg name="in_cmd_vel"  value="/cmd_vel_mux/nav_cmd_vel" />-->
-     <arg name="in_cmd_vel"  value="/cmd_vel_mux/key_cmd_vel" />
-     <arg name="out_cmd_vel" value="/cmd_vel_mux/cmd_vel_safety" />
-  </include>
+  <node name="safety_operator" pkg="nav2d_operator" type="operator">
+     <remap from="scan" to="/beebot/laser/scan"/>
+     <remap from="cmd_vel" to="cmd_vel_mux/cmd_vel_safety" />
+     <rosparam file="$(find proxemics_anytimerrts)/launch/gazebo_simulation/move_base/nav2d_operator_param.yaml"/>
+     <rosparam file="$(find proxemics_anytimerrts)/launch/gazebo_simulation/move_base/nav2d_operator_local_costmap.yaml" ns="local_map" />
+  </node>
 
    <!-- ****Velocity Smoother (just regulate the overall output from cmd_vel_mux) ***** -->
   <node pkg="nodelet" type="nodelet" name="$(arg smoother_node_name)"

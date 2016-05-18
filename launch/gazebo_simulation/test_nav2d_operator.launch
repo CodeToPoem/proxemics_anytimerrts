@@ -1,0 +1,8 @@
+<launch>
+  <node name="safety_operator" pkg="nav2d_operator" type="operator" output="screen">
+     <remap from="scan" to="/beebot/laser/scan"/>
+     <rosparam file="$(find proxemics_anytimerrts)/launch/gazebo_simulation/move_base/nav2d_operator_param.yaml"/>
+     <rosparam file="$(find proxemics_anytimerrts)/move_base_config/local_costmap_params.yaml" ns="local_map" />
+     <rosparam file="$(find proxemics_anytimerrts)/move_base_config/common_params.yaml" />
+  </node>
+</launch>
