@@ -2,7 +2,7 @@
  *
  * Software License Agreement (BSD License)
  *
- *  Copyright (c) 2015 Charly Huang
+ *  Copyright (c) 2016 Charly Huang
  *  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -35,6 +35,8 @@
  ******************************************************************************/
 
 #include <proxemics_anytimerrts/anytimerrts_planner.h>
+#include <pluginlib/class_list_macros.h>
+
 
 namespace proxemics_anytimerrts {
 	
@@ -46,6 +48,12 @@ int Hasher::num_orientations_ = 0;
 int Hasher::num_vels_w_ = 0;
 int Hasher::num_vels_x_ = 0;
 
+/// RRT Planner's settings
+/// extern Config config:
+tf::TransformListener* listener ;
+
+ros::Rate *loop_rate ;
+
 AnytimeDynamicRRTs::AnytimeDynamicRRTs(std::string name, costmap_2d::Costmap2DROS *costmap) {
 	
    if (!initialized_){
@@ -54,7 +62,7 @@ AnytimeDynamicRRTs::AnytimeDynamicRRTs(std::string name, costmap_2d::Costmap2DRO
 
   //init ros publishers
   vel_path_pub_ =
-      private_nh.advertise<proxemics_anytimerrts::Path>("plan", 1);
+      private_nh.advertise<lattice_planner::Path>("plan", 1);
   expanded_paths_pub_ =
       private_nh.advertise<nav_msgs::Path>("expanded_paths", 1);
 
@@ -66,10 +74,18 @@ AnytimeDynamicRRTs::AnytimeDynamicRRTs(std::string name, costmap_2d::Costmap2DRO
   all_expanded_pub_ =
       private_nh.advertise<geometry_msgs::PoseArray>("all_expanded", 1);
   debug_no_interrupt_ = false;
+  
+  //planner references
+  private_nh.param("time_resolution", time_resolution_, 0.5) ;
 
   //get planner behavior params from ros param server
 
   std::string dynamic_layers_plugin_name;
+  
+  //dynamic costmap for costs associated with static and dynamic obstacles
+  dynamic_costmap_ = new DynamicCostmap(costmap, max_timesteps_,
+                                        ros::Duration(time_resolution_),
+                                        dynamic_layers_plugin_name);
 
 /// ****************** RRT Planner's settings below ******************************
             // number of RRT* iterations
@@ -132,7 +148,7 @@ AnytimeDynamicRRTs::AnytimeDynamicRRTs(std::string name, costmap_2d::Costmap2DRO
 
         listener = new tf::TransformListener();
 
-        costmap_ros_ = costmap_ros;
+        costmap_ros_ = costmap;
 
         costmap_ = costmap_ros_->getCostmap();
 
@@ -144,9 +160,9 @@ AnytimeDynamicRRTs::AnytimeDynamicRRTs(std::string name, costmap_2d::Costmap2DRO
               if( (int)(footprint_spec_.size()) > 0)
                   ROS_INFO("footprint_spec_ loaded with %d elements", (int)footprint_spec_.size());
 
-              world_model_ = new CostmapModel(*costmap_);
+              world_model_ = new base_local_planner::CostmapModel(*costmap_);
 
-              grid_planner_ = new Grid_planner(node, new CostmapModel(*costmap_) , footprint_spec_, costmap_ros_);
+              grid_planner_ = new Grid_planner(node, new base_local_planner::CostmapModel(*costmap_) , footprint_spec_, costmap_ros_);
 
               grid_planner_->initialize();
 
@@ -176,15 +192,15 @@ AnytimeDynamicRRTs::AnytimeDynamicRRTs(std::string name, costmap_2d::Costmap2DRO
         // pub_graph_=nh_.advertise<pedsim_msgs::Tree>("/rrt_planner/graph",1);
         pub_no_plan_ = nh_.advertise<std_msgs::Bool>("rrt_planner/no_plan",1);
 
-
-        sub_obstacles_=nh_.subscribe("/move_base_node/global_costmap/costmap",1, &Srl_global_planner::callbackObstacles,this);
+// TODO : complete the following functions if necessary
+        ///sub_obstacles_=nh_.subscribe("/move_base_node/global_costmap/costmap",1, &Srl_global_planner::callbackObstacles,this);
 
 
         // subscriberss TODO!!!!
-        sub_goal_=nh_.subscribe("/move_base_simple/goal",1,&Srl_global_planner::callbackSetGoal,this);
+        ///sub_goal_=nh_.subscribe("/move_base_simple/goal",1,&Srl_global_planner::callbackSetGoal,this);
 
 
-        sub_daryl_odom_=nh_.subscribe("/odom",5,&Srl_global_planner::callbackSetRobotPose,this);
+        ///sub_daryl_odom_=nh_.subscribe("/odom",5,&Srl_global_planner::callbackSetRobotPose,this);
 
 
         ROS_INFO("ROS publishers and subscribers initialized");
@@ -325,43 +341,16 @@ AnytimeDynamicRRTs::AnytimeDynamicRRTs(std::string name, costmap_2d::Costmap2DRO
   private_nh.param("easy_turn_at_start", easy_turn_at_start_, false);
   private_nh.param("easy_turn_at_goal", easy_turn_at_goal_, false);
 
-  //create a hash map for every time step
-  for(int i=0; i<max_timesteps_; i++)
-  {
-    state_map* time_map = new state_map();
-    time_map->rehash(10000);
-    time_map->reserve(10000);
-    expanded_states_.push_back(time_map);
-  }
-
+  
   //dynamic costmap for costs associated with static and dynamic obstacles
   dynamic_costmap_ = new DynamicCostmap(costmap, max_timesteps_,
                                         ros::Duration(time_resolution_),
                                         dynamic_layers_plugin_name);
-
+#if 0
   double resolution = dynamic_costmap_->getStaticROSCostmap()->getCostmap()->getResolution();
   map_index_check_time_inkr_ = 0.5 * resolution / motion_constraints.max_vel_x;
+#endif
 
-  //cost manager for cost calculation
-  cost_calc_ = new CostManager(dynamic_costmap_, motion_constraints, cost_factors);
-
-  //state discretizer for discretizing the configuration space
-  discretizer_ = new StateDiscretizer(dynamic_costmap_, motion_constraints);
-
-  //hasher for generating unique hashes for the hash map
-  int num_gridcells, num_orientations, num_vels_x, num_vels_w;
-  discretizer_->getLimits(num_gridcells, num_orientations, num_vels_x, num_vels_w);
-  Hasher::setLimits(num_gridcells, num_orientations, num_vels_x, num_vels_w);
-
-  //trajectory rollout for robot motion calculation
-  trajectory_rollout_ = new TrajectoryRollout(motion_constraints);
-
-  //heuristics calculator for estimating the remaining cost to reach the goal
-  heuristic_calc_ = new Heuristics(dynamic_costmap_, cost_factors, motion_constraints);
-  heuristic_calc_->estimateAdditional(easy_deceleration_,easy_turn_at_goal_,
-                                      xy_goal_tolerance_);
-  heuristic_calc_->setHasUnknown(allow_unknown_);
-  heuristic_calc_->initPublisher("lattice_planner/heuristics", 100);
   
    }
    else	{
@@ -370,6 +359,7 @@ AnytimeDynamicRRTs::AnytimeDynamicRRTs(std::string name, costmap_2d::Costmap2DRO
 }
 
 AnytimeDynamicRRTs::~AnytimeDynamicRRTs() {
+
   reset();
 
   std::vector< state_map* >::const_iterator it;
@@ -382,6 +372,7 @@ AnytimeDynamicRRTs::~AnytimeDynamicRRTs() {
   delete trajectory_rollout_;
   delete heuristic_calc_;
   delete cost_calc_;
+
 }
 
 // clean up everything
@@ -393,65 +384,464 @@ bool AnytimeDynamicRRTs::findReplanningWaypoint(ros::Time plan_release_time,
                               geometry_msgs::PoseStamped& replanning_start_pose,
                               geometry_msgs::Twist& replanning_start_vel){
 
-  if(current_plan_.poses.empty())
-  {
-    ROS_WARN("AStarLattice: error while trying to find the next waypoint for "
-             "continuous planning: plan is empty");
-    return false;
-  }
+// TODO
+}
 
-  conti_pose = current_plan_.poses.back();
-  replanning_start_vel = current_plan_.velocities.back();
 
-  int i=0;
-
-  //check array for the first element that is at conti_time or later
-  while(i < current_plan_.poses.size() &&
-        fabs((conti_pose.header.stamp - conti_time).toSec()) > time_resolution_ / 2)
-  {
-    conti_pose = current_plan_.poses.at(i);
-    replanning_start_vel = current_plan_.velocities.at(i);
-    ++i;
-  }
-
-  //correct planning position for turning in place:
-  //when turning in place, amcl's estimated robot pose can deviate a lot so that
-  //after turning the robot's estimated position does not match the one from the
-  //current plan any more. To overcome this problem, it is checked here whether the
-  //robot is only turning and if so, the robot position for the next planning is
-  //updated with the currently estimated position from amcl instead of the
-  //waypoint from the current plan.
-  try
-  {
-    geometry_msgs::Twist prev_vel = current_plan_.velocities.at(i - 2);
-    if(prev_vel.linear.x == 0 && replanning_start_vel.linear.x == 0)
-    {
-      ROS_DEBUG("turn in place. update pose with amcl");
-      tf::Stamped<tf::Pose> robot_pose;
-      if(dynamic_costmap_->getStaticROSCostmap()->getRobotPose(robot_pose))
-      {
-        conti_pose.pose.position.x = robot_pose.getOrigin().getX();
-        conti_pose.pose.position.y = robot_pose.getOrigin().getY();
-      }
+/// ==================================================================================
+/// set_angle_to_range(double alpha, double min)
+/// wrap the angle
+/// ==================================================================================
+double AnytimeDynamicRRTs::set_angle_to_range(double alpha, double min)
+{
+#if 0
+    while (alpha >= min + 2.0 * M_PI) {
+        alpha -= 2.0 * M_PI;
     }
-  }
-  catch(std::out_of_range ex)
-  {
-    ROS_ERROR("could not adjust next waypoint for turning in place, out of range");
-  }
+    while (alpha < min) {
+        alpha += 2.0 * M_PI;
+    }
+    return alpha;
+#endif
+}
 
-  //check if element is the closest possible to conti time
-  if(fabs((conti_pose.header.stamp - conti_time).toSec()) < time_resolution_ / 2)
+/// ==================================================================================
+/// publishSample()()
+/// Method to publish the current sample
+/// ==================================================================================
+void AnytimeDynamicRRTs::publishSample(double x,double y, double theta, int ident){
+
+    visualization_msgs::Marker sample_marker_;
+    sample_marker_.header.frame_id = planner_frame_;
+    sample_marker_.header.stamp = ros::Time::now();
+    sample_marker_.ns = "proxemics_anytimerrts";
+    sample_marker_.id = ident;
+
+
+    sample_marker_.type = visualization_msgs::Marker::ARROW;
+    sample_marker_.color.a = 1;
+    sample_marker_.color.r = 1.0;
+    sample_marker_.color.g = 0.10;
+    sample_marker_.color.b = 0.10;
+
+    sample_marker_.scale.x = 1;
+    sample_marker_.scale.y = 0.1;
+    sample_marker_.scale.z = 0.01;
+
+
+    sample_marker_.action = 0;  // add or modify
+
+    sample_marker_.pose.position.x = x;
+    sample_marker_.pose.position.y = y;
+    sample_marker_.pose.position.z = 0; /// needed and
+    sample_marker_.pose.orientation = tf::createQuaternionMsgFromRollPitchYaw(0,0,theta);
+
+
+
+
+    pub_samples_.publish(sample_marker_);
+
+}
+
+/// ==================================================================================
+/// publishTree()()
+/// Method to publish the current Tree
+/// ==================================================================================
+
+void AnytimeDynamicRRTs::publishTree(){
+
+    visualization_msgs::Marker tree_marker_;
+
+
+    tree_marker_.header.frame_id = planner_frame_;
+    tree_marker_.header.stamp = ros::Time();
+    tree_marker_.ns = "rrt_planner";
+    tree_marker_.id = 1;
+
+    tree_marker_.type = visualization_msgs::Marker::POINTS;
+    tree_marker_.color.a = 1;
+    tree_marker_.color.r = 0.0;
+    tree_marker_.color.g = 0.0;
+    tree_marker_.color.b = 1.0;
+
+    tree_marker_.scale.x = 0.1;
+    tree_marker_.scale.y = 0.1;
+    tree_marker_.scale.z = 0.1;
+
+
+    tree_marker_.action = 0;  // add or modify
+
+
+    for (vector<Tpoint>::const_iterator iter =this->tree_.begin(); iter !=this->tree_.end(); ++iter) {
+        Tpoint a = (*iter);
+        geometry_msgs::Point p;
+        p.x = a.x;
+        p.y = a.y;
+        p.z = 0.5;
+
+        tree_marker_.points.push_back(p);
+
+    }
+
+
+
+
+    pub_tree_.publish(tree_marker_);
+
+
+    visualization_msgs::Marker dedicated_tree_marker_;
+
+
+
+    /// pub_tree_dedicated_ publishes a tree on a topic showed by a separate rviz session
+
+    dedicated_tree_marker_.header.frame_id = planner_frame_;
+    dedicated_tree_marker_.header.stamp = ros::Time();
+    dedicated_tree_marker_.ns = "rrt_planner";
+    dedicated_tree_marker_.id = 1;
+
+    dedicated_tree_marker_.type = visualization_msgs::Marker::POINTS;
+    dedicated_tree_marker_.color.a = 1;
+    dedicated_tree_marker_.color.r = 1.0;
+    dedicated_tree_marker_.color.g = 0.0;
+    dedicated_tree_marker_.color.b = 0.0;
+
+    dedicated_tree_marker_.scale.x = 0.1;
+    dedicated_tree_marker_.scale.y = 0.1;
+    dedicated_tree_marker_.scale.z = 0.1;
+
+
+    dedicated_tree_marker_.action = 0;  // add or modify
+
+
+    for (vector<Tpoint>::const_iterator iter =this->tree_.begin(); iter !=this->tree_.end(); ++iter) {
+        Tpoint a = (*iter);
+        geometry_msgs::Point p;
+        p.x = a.x;
+        p.y = a.y;
+        p.z = 0.05;
+
+        dedicated_tree_marker_.points.push_back(p);
+
+    }
+
+    pub_tree_dedicated_.publish(dedicated_tree_marker_);
+
+
+}
+
+/// ==================================================================================
+/// publishPath(Trajectory *t)
+/// method to publish the trajectory t
+/// ==================================================================================
+void AnytimeDynamicRRTs::publishPath(Trajectory *t){
+
+/// To IMPLEMENT
+    nav_msgs::Path path_;
+    ROS_DEBUG("Publishing a path");
+
+    std::vector<Tpoint> path = t->getPath();
+    ROS_DEBUG("Path Size :%d",(int)path.size());
+
+    path_.header.frame_id = planner_frame_;
+    path_.header.stamp = ros::Time();
+    path_.poses.resize((int)path.size());
+
+    visualization_msgs::Marker path_marker_;
+    path_marker_.header.frame_id = planner_frame_;
+    path_marker_.header.stamp = ros::Time();
+    path_marker_.ns = "proxemics_anytimerrts";
+    path_marker_.id = 1;
+
+    path_marker_.type = visualization_msgs::Marker::POINTS;
+    path_marker_.color.a = 1;
+    path_marker_.color.r = 0.0;
+    path_marker_.color.g = 1.0;
+    path_marker_.color.b = 0.0;
+
+    path_marker_.scale.x = 0.5;
+    path_marker_.scale.y = 0.5;
+    path_marker_.scale.z = 0.5;
+
+
+    path_marker_.action = 0;  // add or modify
+
+
+    for (size_t i = 0; i < path.size(); i++) {
+
+
+        geometry_msgs::PoseStamped posei;
+
+        path_.poses[i].header.stamp = ros::Time();
+        path_.poses[i].header.frame_id = planner_frame_;
+
+
+        path_.poses[i].pose.position.x = path[i].x;
+        path_.poses[i].pose.position.y = path[i].y;
+        path_.poses[i].pose.position.z = 0;
+
+
+        path_.poses[i].pose.orientation = tf::createQuaternionMsgFromRollPitchYaw(0,0,path[i].z);
+
+
+        /// Path_marker
+        geometry_msgs::Point p;
+        p.x = path[i].x;
+        p.y = path[i].y;
+        p.z = 0.05;
+        path_marker_.points.push_back(p);
+
+
+    }
+
+    if(path.size()>0){
+
+        pub_path_.publish(path_);
+        pub_path_dedicated_.publish(path_marker_);
+
+        ROS_DEBUG("Path Published");
+
+    }
+
+}
+
+
+/// ==================================================================================
+/// setGoal(double x, double y, double theta,double toll)
+/// Method to store the Goal region description into the instance of the class
+/// ==================================================================================
+void AnytimeDynamicRRTs::setGoal(double x, double y, double theta, double toll, std::string goal_frame){
+
+  ROS_DEBUG("Setting Goal in RRT, Goal Frame %s", goal_frame.c_str());
+
+    tf::StampedTransform transform;
+
+    try{
+
+        // will transform data in the goal_frame into the planner_frame_
+        listener->waitForTransform( planner_frame_, goal_frame, ros::Time::now(), ros::Duration(0.20));
+
+        listener->lookupTransform( planner_frame_, goal_frame, ros::Time::now(), transform);
+
+    }
+    catch(tf::TransformException){
+
+        ROS_ERROR("Failed to transform Gaol Transform in RRT Planner");
+        return;
+    }
+
+    tf::Pose source;
+
+    tf::Quaternion q = tf::createQuaternionFromRPY(0,0, theta);
+
+    tf::Matrix3x3 base(q);
+
+    source.setOrigin(tf::Vector3(x, y, 0));
+
+    source.setBasis(base);
+
+    /// Apply the proper transform
+    tf::Pose result = transform*source;
+
+
+    this->goal_theta_= tf::getYaw( result.getRotation());
+    this->goal_x_ = result.getOrigin().x();
+    this->goal_y_ = result.getOrigin().y();
+    this->toll_goal_ = toll;
+    this->goal_init_ = true;
+
+    ROS_DEBUG("GOAL SET!!");
+    ROS_DEBUG("GOAL SET!!");
+    ROS_DEBUG("GOAL SET!!");
+
+    goal_pose_.position.x = result.getOrigin().x();
+    goal_pose_.position.y = result.getOrigin().y();
+    goal_pose_.position.z = result.getOrigin().z();
+
+    /// if goal was set the first time keep it as previous goal pose
+    if(initialize_previous_goal_ == 0){
+
+      previous_goal_pose_.position.x = goal_pose_.position.x;
+      previous_goal_pose_.position.y = goal_pose_.position.y;
+      previous_goal_pose_.position.z = goal_pose_.position.z;
+      initialize_previous_goal_ ++;
+      last_path_length_ = 0;
+
+    }else{
+
+      /// if previous goal is different from the new one, reset the last path
+      /// generated
+      if( previous_goal_pose_.position.y != goal_pose_.position.y &&
+                previous_goal_pose_.position.y != goal_pose_.position.y){
+
+                  ROS_DEBUG("New goal, resetting path length");
+                  last_path_length_ = 0;
+
+      }
+
+
+    }
+
+    tf::quaternionTFToMsg(result.getRotation(), goal_pose_.orientation);
+
+    this->goal_init_=true;
+
+}
+
+/// ==================================================================================
+/// csetGlobalPathSupport
+/// Global Support used in RRT
+/// ==================================================================================
+bool AnytimeDynamicRRTs::setGlobalPathSupport( std::vector< geometry_msgs::PoseStamped > plan){
+
+    support_bias_->clear_delete();
+    support_->clear_delete();
+
+    ROS_DEBUG("proxemics_anytimerrts setGlobalPathSupport");
+
+    size_t dim;
+
+    dim = plan.size();
+
+    double t=0;
+
+    double old_x,old_y,old_th;
+
+    ROS_DEBUG("proxemics_anytimerrts setGlobalPathSupport dim path %d", (int)dim);
+
+    for (size_t i=0; i<dim; i++){
+
+
+        geometry_msgs::PoseStamped posei = transformPose(plan[i]);
+
+        double th = tf::getYaw(plan[i].pose.orientation);
+        double x = plan[i].pose.position.x;
+        double y = plan[i].pose.position.y;
+
+
+        // double th = tf::getYaw(posei.pose.orientation);
+        // double x = posei.pose.position.x;
+        // double y = posei.pose.position.y;
+
+
+        state_t *state_i = new state_t;
+
+        (*state_i)[0]=x;
+        (*state_i)[1]=y;
+        (*state_i)[2]=th;
+
+        ROS_DEBUG("Reading points >> %f %f %f", x, y, th);
+        ROS_DEBUG("Reading points transformed >> %f %f %f", posei.pose.position.x, posei.pose.position.y, tf::getYaw(posei.pose.orientation));
+
+        support_->list_states.push_back (new state_t(*state_i));
+
+
+        if(i==0){
+
+        state_t *state_i = new state_t;
+
+        (*state_i)[0]=x;
+        (*state_i)[1]=y;
+        (*state_i)[2]=th;
+
+        support_bias_->list_states.push_back (new state_t(*state_i));
+
+        old_x=x;
+        old_y=y;
+        old_th=th;
+
+        }
+        else{
+
+
+            while(t<1){
+
+                state_t *state_i = new state_t;
+
+                (*state_i)[0]=(x-old_x)*t+old_x;
+                (*state_i)[1]=(y-old_y)*t+old_y;
+                (*state_i)[2]=(th-old_th)*t+old_th;
+                support_bias_->list_states.push_back (new state_t(*state_i));
+                t=t+0.01;
+
+            }
+
+
+            state_t *state_i = new state_t;
+
+            (*state_i)[0]=x;
+            (*state_i)[1]=y;
+            (*state_i)[2]=th;
+
+            support_bias_->list_states.push_back (new state_t(*state_i));
+
+            old_x=x;
+            old_y=y;
+            old_th=th;
+            t=0;
+
+        }
+
+
+    }
+
+
     return true;
 
-  else
-  {
-    ROS_ERROR_STREAM("AStarLattice: could not find next waypoint for continuous "
-                     "planning for time " << conti_time << std::endl <<
-                     current_plan_);
-    return false;
-  }
-  								  
+}
+
+/// ==================================================================================
+/// Srl_global_planner::transformPose(geometry_msgs::PoseStamped init_pose)
+/// Transforms the init_pose in the planner_frame
+/// ==================================================================================
+geometry_msgs::PoseStamped AnytimeDynamicRRTs::transformPose(geometry_msgs::PoseStamped init_pose){
+
+    geometry_msgs::PoseStamped res;
+
+    ROS_DEBUG("Transform Pose in RRT, in Frame %s", planner_frame_.c_str());
+
+    tf::StampedTransform transform;
+
+    try{
+
+        // will transform data in the goal_frame into the planner_frame_
+        listener->waitForTransform( planner_frame_, init_pose.header.frame_id, ros::Time::now(), ros::Duration(0.20));
+        listener->lookupTransform(  planner_frame_,  init_pose.header.frame_id, ros::Time::now(), transform);
+
+    }
+    catch(tf::TransformException){
+
+        ROS_ERROR("Failed to transform the given pose in the RRT Planner frame_id");
+        return init_pose;
+    }
+
+    tf::Pose source;
+
+    tf::Quaternion q= tf::createQuaternionFromRPY(0,0,tf::getYaw(init_pose.pose.orientation));
+
+    tf::Matrix3x3 base(q);
+
+    source.setOrigin(tf::Vector3(init_pose.pose.position.x, init_pose.pose.position.y, 0));
+
+    source.setBasis(base);
+
+    /// Apply the proper transform
+    tf::Pose result = transform*source;
+
+
+
+    res.pose.position.x = result.getOrigin().x() ;
+    res.pose.position.y = result.getOrigin().y() ;
+    res.pose.position.z = result.getOrigin().z() ;
+
+    tf::quaternionTFToMsg(result.getRotation(), res.pose.orientation);
+
+    res.header = init_pose.header;
+
+    res.header.frame_id = planner_frame_;
+
+    return res;
+
 }
 
 /// ==================================================================================
@@ -819,13 +1209,6 @@ if(DEB_RRT>0)
         curr_NUM_UPDATES = NUMBER_UPDATE_TRAJ;
     }
 
-// Charly wants the time to find the first solution
-// and have its exported
-ofstream myfile ;
-myfile.open("/home/charly/anytimeRRTs_time_register.txt") ;
-
-myfile << "time\t\tcost" << std::endl 
-       << "----------------------------" << std::endl ;
 
 if(DEB_RRT>0)
   ROS_INFO_STREAM ("Openning document to register execution time !!") ;
@@ -844,18 +1227,9 @@ if(TIMECOUNTER){
 
         begin_time_ext_ros=ros::WallTime::now().toSec();
         
-        // chrono timer
-        auto startTime = std::chrono::high_resolution_clock::now() ;
-        
+
         planner.iteration ();
-        timep+=  ros::WallTime::now().toSec() - begin_time_ext_ros;
-        // chrono timer
-        auto endTime = std::chrono::high_resolution_clock::now() ;
-        
-        // chrono timer duration
-        myfile << "\t" << std::chrono::duration_cast<std::chrono::microseconds> (endTime - startTime).count() << std::endl 
-               << "or, timep+: " << timep ;
-        
+        timep+=  ros::WallTime::now().toSec() - begin_time_ext_ros; 
         
         
         it++;
@@ -882,9 +1256,6 @@ if(TIMECOUNTER){
             if(first_sol==0){
                 end_time_solution=ros::WallTime::now().toSec() -begin_time_solution;
                 
-                // Charly wants this time info 
-                myfile << "First solution after seconds: " << end_time_solution << std::endl ;
-
                 if( DEB_RRT>0)
                   ROS_INFO("First Solution after Seconds: %f", end_time_solution);
 
@@ -1003,8 +1374,6 @@ else {
           
     }
 
-// Charly closes the document
-myfile.close() ;
 
     nrew_=rw/iterations;
     timeIter_=timep/iterations;
@@ -1097,12 +1466,16 @@ myfile.close() ;
     return 1;
 }
 
+
 /// ==================================================================================
 /// getPath() which is equivalent to makePlan(). getPath() calls in plan() to do the planning.
 /// ==================================================================================
 bool AnytimeDynamicRRTs::getPath(geometry_msgs::PoseStamped start,
                            geometry_msgs::PoseStamped goal, bool replanning,
-                           std::vector<geometry_msgs::PoseStamped>& path) {
+                           std::vector<geometry_msgs::PoseStamped>& plan) {
+
+// TODO
+
   reset() ;
    
   ros::Time begin = start.header.stamp;
@@ -1131,18 +1504,20 @@ bool AnytimeDynamicRRTs::getPath(geometry_msgs::PoseStamped start,
   }
 
 #ifndef DEBUG
-  ros::Timer planning_timer = nh_.createTimer(path_time_ - ros::Time::now(),
-                                             &AStarLattice::plannerTimeoutCallback,
-                                             this, true);
-#endif
+
+//  ros::Timer planning_timer = nh_.createTimer(path_time_ - ros::Time::now(),
+//                                             &AStarLattice::plannerTimeoutCallback,
+//                                             this, true);
+
+#endif 
 
   dynamic_costmap_->update();
 
   // fll start and end pose 
-  // TODO
+  plan = current_plan_.poses ;
   
   /// ******************* RRT Planning goes here ********************************
-    if(this->initialized_){
+    if( this->initialized_){
 
         this->setGoal((double)goal.pose.position.x, (double)goal.pose.position.y, (double)tf::getYaw(goal.pose.orientation), toll_goal_ , goal.header.frame_id );
         /// Grid Planning
@@ -1218,13 +1593,14 @@ bool AnytimeDynamicRRTs::getPath(geometry_msgs::PoseStamped start,
         return false;
     }  
   /// ******************* RRT Planning ends here ******************************** 
-  
-    if(!path.empty())
+
+    if(!plan.empty())
     return true;
 
   else
     return false;        							   
 }
+
 
 
 

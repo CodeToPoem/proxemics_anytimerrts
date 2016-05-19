@@ -1,0 +1,150 @@
+<launch>
+<!--
+beebot_gazebo_plan_sim.launch
+
+This launch file loads the environment into Gazebo,
+calls in NTU Beebot, and fires up motion planner
+-->
+
+<!-- ******* 1. Choose planner types ******* -->
+<!--
+Global planners:
+Dijkstra: (blank, default)
+AD*: SBPLLatticePlanner
+ADRRT*: anytimeRRTs/AnytimeRRTsROS
+Social Aware ADRRT*: proxemics_anytimerrts/ProxemicsAnytimeRRTs
+lattice_planner (A*): lattice_planner/TBPlanner
+
+Local Planners:
+Dynamic Window Algorithm: dwa_local_planner/DWAPlannerROS
+path follower: path_executer/PathFollower
+Timed Elastic Band: teb_local_planner/TebLocalPlannerROS
+Pose follower: pose_follower/PoseFollower
+Time path follower: path_executer/PathFollower
+-->
+
+<arg name="global_planner" default="SBPLLatticePlanner"/>
+<arg name="local_planner" default="dwa_local_planner/DWAPlannerROS" />
+
+
+<!-- ******* 2. Choose simultion scene ******** -->
+<!--1. corridor-->
+<!--
+<arg name="in_env" default="$(find proxemics_anytimerrts)/maps/gazebo_map/social_sim_env.world"/>
+
+<arg name="map_file" default="$(find hproxemics_anytimerrts)/maps/gazebo_map/social_sim_env.yaml" />
+-->
+
+<!--2. sim_world-->
+
+<arg name="in_env" default="$(find proxemics_anytimerrts)/maps/gazebo_map/my_2nd_test_map.world"/>
+<arg name="map_file" default="$(find proxemics_anytimerrts)/maps/gazebo_map/new_sim_map/new_sim_map.yaml" />
+
+<!-- ********* Gazebo & Rviz ********* -->
+<include file="$(find simulation_tobot)/beebot_control/launch/beebot_control.launch">
+  <arg name="world_file" value="$(arg in_env)" />
+  <arg name="rvizconfig" value="$(find proxemics_anytimerrts)/launch/rviz_config/rviz_config.rviz" />
+</include>
+
+<!-- ********* Adding tf frame ******* -->
+<node pkg="tf" type="static_transform_publisher" name="base_footprint_broadcaster" args="0 0 -0.065 0 0 0 /base_link /base_footprint 100" />
+
+<!-- ******** map_server *******-->
+<node name="map_server" type="map_server" pkg="map_server" 
+      args="$(arg map_file)" />
+
+<!-- ******** odometry ********* -->
+<arg name="filtered_odom" default="odometry/filtered" />
+<arg name="rgb_image" default="/camera/rgb/image_raw" />
+<arg name="depth_image" default="/camera/depth/image_raw" />
+<arg name="rgb_cam_info" default="/camera/rgb/camera_info" />
+<arg name="cam_height" default="0.2485"/>
+
+<!--i. Laser Odometry -->
+<!--TODO-->
+<!--ii. Visual Odometry -->
+<!--
+  <node pkg="viso2_ros" type="mono_odometer" name="mono_odometer" >
+	  <remap from="/image" to="$(arg rgb_image)" />
+	  <remap from="/camera_info" to="$(arg rgb_cam_info)" />
+	  
+	  <param name="camera_height" value="$(arg cam_height)"/>
+          <param name="publish_tf"    value="false" />
+  </node>
+-->
+<!--iii. RGB-D Odometry -->
+  <remap from="/odom" to="rgbd_odom" />
+  <node pkg="rtabmap_ros" type="rgbd_odometry" name="rgbd_odometry">     
+      <remap from="rgb/image"         to="$(arg rgb_image)"/>
+      <remap from="depth/image"       to="$(arg depth_image)"/>
+      <remap from="rgb/camera_info"   to="$(arg rgb_cam_info)"/>
+      <remap from="/odom"             to="/rgbd_odom"/>
+      <param name="frame_id"          type="string"             value="base_link"/>
+      <param name="Odom/Holonomic"    type="string"             value="false" />
+      <param name="Odom/ParticleFiltering" type="string"        value="true" />
+  </node>
+
+
+
+<!-- v. Robot Localization-->
+<!--
+<include file="$(find proxemics_anytimerrts)/launch/gazebo_simulation/pose_estimate/ekf_fusion_estimate.launch" >
+    <remap from="odometry/filtered" to="$(arg filtered_odom)" />
+</include>
+-->
+
+<!-- ******** Localization (Pose estimate) Comment out either i.a, or i.b. *************-->
+<!-- i.a. AMCL -->
+<!--
+<include file="$(find proxemics_anytimerrts)/launch/gazebo_simulation/pose_estimate/my_amcl.launch" >
+  <arg name="odom_frame_id"   value="/odom"/>
+</include>
+-->
+
+<!--i.b. fake_localization-->
+
+<node pkg="fake_localization" type="fake_localization" name="fake_localization" >
+  <remap from="base_pose_ground_truth" to="/beebot_diff_drive_controller/odom" />
+</node>
+
+<!-- ******** move_base ******** -->
+
+<remap from="/odom" to="/rgbd_odom" />
+<include file="$(find proxemics_anytimerrts)/launch/gazebo_simulation/move_base/anytime_dynamic_rrts.launch" >
+  <arg name="global_planner" default="$(arg global_planner)" />
+  <arg name="local_planner" default="$(arg local_planner)" />
+  <arg name="output_vel"     default="/cmd_vel_mux/nav_cmd_vel" />
+</include>
+
+<!--Original SBPL planner-->
+<!--
+<include file="$(find sbpl_lattice_planner)/launch/move_base_sbpl.launch" />
+-->
+<!--Dijkstra global planner + TEB local planner -->
+<!--
+<remap from="/cmd_vel" to="/beebot_diff_drive_controller/cmd_vel" />
+<remap from="/odom" to="/odometry/filtered" />
+<remap from="/laser/scan" to="/beebot/laser/scan" />
+<include file="$(find teb_local_planner)/launch/move_base.launch" />
+-->
+
+<!-- ******** Velocity multiplexer and smoother ********** -->
+<include file="$(find proxemics_anytimerrts)/launch/gazebo_simulation/move_base/kobuki_controller_system.launch" >
+  <arg name="raw_cmd_vel_topic"     value="cmd_vel_mux/output"/>                    <!--subscribed topic -->
+  <arg name="smooth_cmd_vel_topic"  value="/beebot_diff_drive_controller/cmd_vel"/> <!--publish topic-->
+  <arg name="robot_cmd_vel_topic"   value="cmd_vel_mux/output"/>                    <!--subscribed topic-->
+  <arg name="odom_topic"            value="$(arg filtered_odom)"/>    <!--subscribed topic-->
+</include>
+
+<!-- ******** constant velocity prediction node ********** -->
+<!-- FIXME Yet to be re-filled in
+  <node name="constant_velocity_prediction" pkg="people_prediction" type="constant_velocity_prediction" />
+-->
+
+<!-- ******* Optional: Octomap ******-->
+<node pkg="octomap_server" type="octomap_server_node" name="octomap_server_node">
+  <param name="frame_id"         value="map" />
+  <param name="base_frame_id"    value="base_link" />
+  <remap from="cloud_in" to="/camera/depth/points" />
+</node>
+</launch>

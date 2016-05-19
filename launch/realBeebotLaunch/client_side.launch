@@ -1,0 +1,106 @@
+<launch>
+<!--
+client_side.launch
+
+This launch file is used exclusively with robot_side.launch
+in the package proxemics_anytime_rrts.
+The launch file consists of:
+relay
+octomap
+rviz
+-->
+
+
+
+<!--**********trajectory planner ***************-->
+<!--
+Global planners:
+Dijkstra: (blank, default)
+AD*: SBPLLatticePlanner
+ADRRT*: anytimeRRTs/AnytimeRRTsROS
+Social Aware ADRRT*: proxemics_anytimerrts/ProxemicsAnytimeRRTs
+lattice_planner (A*): lattice_planner/TBPlanner
+
+Local Planners:
+Dynamic Window Algorithm: dwa_local_planner/DWAPlannerROS
+path follower: path_executer/PathFollower
+Timed Elastic Band: teb_local_planner/TebLocalPlannerROS
+Pose follower: pose_follower/PoseFollower
+Time path follower: path_executer/PathFollower
+-->
+<!--
+<arg name="global_planner" default="anytimeRRTs/AnytimeRRTsROS"/>
+<arg name="local_planner" default="teb_local_planner/TebLocalPlannerROS" />
+
+
+<remap from="/odom" to="/odometry/filtered" />
+<include file="$(find proxemics_anytimerrts)/launch/realBeebotLaunch/real_move_base.launch">
+  <arg name="scan_topic"     value="/scan_th_relay" />
+  <arg name="odom_in"        value="/odometry_filtered" />
+  <arg name="global_planner" value="$(arg global_planner)" />
+  <arg name="local_planner"  value="$(arg local_planner)" />
+  <arg name="output_vel"     value="cmd_vel_raw" />
+</include>-->
+<!--Original SBPL planner-->
+<!--
+<include file="$(find sbpl_lattice_planner)/launch/move_base_sbpl.launch" />
+-->
+<!--Dijkstra global planner + TEB local planner -->
+<!--
+<remap from="/cmd_vel" to="cmd_vel_mux/nav_cmd_vel" />
+<remap from="/odom" to="$(arg in_odom)" />
+<remap from="/laser/scan" to="/scan" />
+<include file="$(find teb_local_planner)/launch/move_base.launch" />
+-->
+
+
+<!-- ******** Relay and Throttle*********** -->
+<!--<include file="$(find proxemics_anytimerrts)/launch/realBeebotLaunch/client_communication.launch" >
+   <arg name="r_odom_in"          value="/odometry/filtered" />
+   <arg name="r_odom_relay"       value="/odom_relay"  />
+   <arg name="r_scan_in"          value="/scan_throttled" />
+   <arg name="r_scan_relay"       value="/scan_th_relay" />
+   <arg name="r_camInfo_in"       value="/cam_info_throttled" />
+   <arg name="r_camInfo_relay"    value="/camera_info_th_relay" />
+
+   <arg name="r_rgb_in"           value="/rgb_image_throttled" /> 
+   <arg name="r_rgb_theora_relay" value="/rgb/relay_th_relay" />
+   <arg name="r_rgb_relay"        value="/rgb_image_th_relay" />
+   <arg name="r_dpth_in"          value="/depth_throttled" /> 
+   <arg name="r_dpth_relay"       value="/depth_image_th_relay" />
+   <arg name="r_dpth_theora_relay" value="/depth_theora_th_relay" />
+   <arg name="pointcloud_in"      value="/pointclouds_throttled" />
+   <arg name="pointcloud_relay"   value="/pointcloud_th_relay" />
+
+</include>
+-->
+
+
+
+<!--**********laser people detection *****-->
+<!--
+<include file="$(find proxemics_anytimerrts)/launch/gazebo_simulation/people_detection/laser_people_detector.launch" >
+  <arg name="scan_topic" value="/scan_th_relay" />
+</include>
+
+<include file="$(find proxemics_anytimerrts)/launch/gazebo_simulation/people_detection/people_tracking.launch" />
+
+<include file="$(find proxemics_anytimerrts)/launch/gazebo_simulation/people_detection/group_tracking.launch" />
+-->
+
+<!--Auxiliary teleop-->
+   <node pkg="teleop_twist_keyboard" type="teleop_twist_keyboard.py" name="teleop_twist_keyboard">
+     <remap from="/cmd_vel" to="/cmd_vel_mux/key_cmd_vel" />
+   </node>
+
+<!-- ******* Optional: Octomap ******-->
+<node pkg="octomap_server" type="octomap_server_node" name="octomap_server_node">
+  <param name="frame_id"         value="map" />
+  <param name="base_frame_id"    value="base_link" />
+  <remap from="cloud_in"         to="/pointcloud_th_relay" />
+</node>
+
+<!--********** Rviz ************* -->
+<arg name="rvizconfig" default="$(find proxemics_anytimerrts)/launch/rviz_config/human_aware_nav.rviz" />
+<node name="rviz" pkg="rviz" type="rviz" args="-d $(arg rvizconfig)" required="true" />
+</launch>

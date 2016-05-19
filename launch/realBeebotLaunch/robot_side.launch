@@ -1,0 +1,171 @@
+<launch>
+   <arg name="teleop" default="false"/>
+
+   <!-- ******* launch robot tf frames ******* -->
+   <include file="$(find proxemics_anytimerrts)/launch/my_start_tf_test.launch" />
+
+
+   <!-- ********* Run a static transform between /base_link and /base_footprint needed for SLAM ********* -->
+   <node pkg="tf" type="static_transform_publisher" name="base_footprint_broadcaster" args="0 0 -0.065 0 0 0 /base_link /base_footprint 100" />
+
+   <!-- ****** launch motor driver ************* -->
+   <include file="$(find tobotdrivers)/launch/TobotDriver.launch"/>
+
+   <!--******* turn on laser range finder ******* -->
+   <node pkg="hokuyo_node" type="hokuyo_node" name="hokuyo_node">
+       <param name="frame_id" type="string" value="hokuyo_link" />
+   </node>
+
+
+   <!-- ******* Turn on teleoperation on keyboard ******* -->
+   <group if="$(arg teleop)">
+       <node pkg="teleop_twist_keyboard" type="teleop_twist_keyboard.py" name="teleop_twist_keyboard"/>
+   </group>
+        
+   <!-- ******** Turn on Xtion ************ -->
+   <include file="$(find openni2_launch)/launch/openni2.launch"/>
+
+
+
+   <!-- ********* Data throttle ********* -->
+   <include file="$(find proxemics_anytimerrts)/launch/realBeebotLaunch/robot_communication.launch" >
+     <arg name="laser_th_rate"      value="1" />
+     <arg name="rgb_th_rate"        value="5" />
+     <arg name="depth_th_rate"      value="5" />
+     <arg name="cam_info_th_rate"   value="5" />
+     <arg name="odom_th_rate"       value="5" />
+     <arg name="pointcloud_th_rate" value="5" />
+ 
+     <arg name="scan_in"            value="/scan" />
+     <arg name="scan_out_th"        value="/scan_throttled" />
+     <arg name="rgb_theora_in"      value="camera/rgb/image_rect_color/theora" />
+     <arg name="rgb_out_theora_th"  value="/rgb_image_throttled/theora" />
+     <arg name="rgb_in"             value="/camera/rgb/image_rect_color" />
+     <arg name="rgb_out_th"         value="/rgb_image_throttled" />
+     <arg name="depth_in"           value="/camera/depth/image_rect_raw" />
+     <arg name="depth_out_th"       value="/depth_throttled" />
+     <arg name="depth_compress_in"  value="/camera/depth/image_rect_raw/compresedDepth" />
+     <arg name="depth_compress_out_th" value="/depth_throttled/compressedDepth" />
+     <arg name="camInfo_in"         value="/camera/rgb/camera_info" />
+     <arg name="camInfo_out_th"     value="/cam_info_throttled" />
+     <!--<arg name="odom_in"            value="/odometry/filtered" />
+     <arg name="odom_out_th"        value="/odom_throttled" />-->
+     <arg name="rgbd_in"            value="/camera/depth_registered/points"/>
+     <arg name="rgbd_out_th"        value="/pointclouds_throttled"/>
+
+     <arg name="cmd_vel_in"         value="/cmd_vel_raw" />
+     <arg name="cmd_vel_relay"      value="/cmd_vel_mux/nav_cmd_vel" />
+</include>
+  
+<!-- ******** SLAM *************-->
+<include file="$(find mobile_safeguard_primitive)/launch/navigation/utils/SLAM/hector_slam.launch" >
+  <arg name="scan_topic" value="/scan" />
+</include>
+
+
+<!--**************************************************************-->
+
+
+<!-- ******** RGBD Odometry ********* -->
+<!--
+  <node pkg="rtabmap_ros" type="rgbd_odometry" name="rgbd_odometry" output="screen">    
+      <remap from="rgb/image"       to="/camera/rgb/image_raw"/>
+      <remap from="depth/image"     to="/camera/depth/image_raw"/>
+      <remap from="rgb/camera_info" to="/camera/rgb/camera_info"/>
+      <remap from="/odom" to="/rgbd_odom"/>  
+      <remap from="scan" to="/beebot/laser/scan" />
+      <param name="frame_id" type="string" value="camera_link"/>
+      <param name="subscribe_depth" type="bool"   value="true"/>
+      <param name="Odom/Holonomic" type="bool" value="false" />
+      <param name="Odom/MaxFeatures" type="int" value="0" />
+      <param name="Odom/ParticleSize" type="int" value="5000" />
+      <param name="RGBD/PoseScanMatching" type="string" value="true" />
+  </node>
+-->
+
+<!--********* Visual Odometry ******* -->
+<!--
+  <node pkg="viso2_ros" type="mono_odometer" name="mono_odometer" >
+	  <remap from="/image" to="/camera/rgb/image_raw" />
+	  <remap from="/camera_info" to="/camera/rgb/camera_info" />
+	  <param name="camera_height" value="0.2485"/>
+  </node>	
+-->
+
+
+<!--********* ekf sensor fusion ******** -->
+<include file="$(find proxemics_anytimerrts)/launch/realBeebotLaunch/real_ekf_estimation.launch" >
+    <arg name="wh_odom" value="/odom" />
+</include>
+
+
+
+
+
+
+
+
+<!--**********trajectory planner ***************-->
+<!--
+Global planners:
+Dijkstra: (blank, default)
+AD*: SBPLLatticePlanner
+ADRRT*: anytimeRRTs/AnytimeRRTsROS
+Social Aware ADRRT*: proxemics_anytimerrts/ProxemicsAnytimeRRTs
+lattice_planner (A*): lattice_planner/TBPlanner
+
+Local Planners:
+Dynamic Window Algorithm: dwa_local_planner/DWAPlannerROS
+path follower: path_executer/PathFollower
+Timed Elastic Band: teb_local_planner/TebLocalPlannerROS
+Pose follower: pose_follower/PoseFollower
+Time path follower: path_executer/PathFollower
+-->
+
+<arg name="global_planner" default="SBPLLatticePlanner"/>
+<arg name="local_planner" default="pose_follower/PoseFollower" />
+
+<!--<remap from="/odom" to="/odom_th_relay" />-->
+
+<remap from="/odom" to="/odometry/filtered" />
+<include file="$(find proxemics_anytimerrts)/launch/realBeebotLaunch/real_move_base.launch">
+  <arg name="scan_topic"     value="/scan" />
+  <arg name="odom_in"        value="/odometry_filtered" />
+  <arg name="global_planner" value="$(arg global_planner)" />
+  <arg name="local_planner"  value="$(arg local_planner)" />
+  <arg name="output_vel"     value="cmd_vel_mux/nav_cmd_vel" />
+</include>
+<!--Original SBPL planner-->
+<!--
+<remap from="/cmd_vel" to="cmd_vel_mux/nav_cmd_vel" />
+<remap from="/odom" to="/odometry/filtered" />
+<remap from="/hokuyo_scan" to="/scan" />
+<include file="$(find sbpl_lattice_planner)/launch/move_base_sbpl.launch" />
+-->
+<!--Dijkstra global planner + TEB local planner -->
+<!--
+<remap from="/cmd_vel" to="cmd_vel_mux/nav_cmd_vel" />
+<remap from="/odom" to="$(arg in_odom)" />
+<remap from="/laser/scan" to="/scan" />
+<include file="$(find teb_local_planner)/launch/move_base.launch" />
+-->
+
+
+
+
+
+
+
+
+<!-- ******** Velocity Regulator with safety measure ***** -->
+<include file="$(find proxemics_anytimerrts)/launch/gazebo_simulation/move_base/kobuki_controller_system.launch" >
+  <!--Velocity Smoother's settings-->
+  <arg name="raw_cmd_vel_topic"     value="cmd_vel_mux/output"/>                      <!--overall pu topic: related to cmd_vel_mux's published topic -->
+  <arg name="smooth_cmd_vel_topic"  value="/cmd_vel"/>                  <!--publish topic-->
+  <arg name="robot_cmd_vel_topic"   value="cmd_vel_mux/output"/>                      <!--subscribed topic-->
+  <arg name="odom_topic"            value="/odometry/filtered"/>                          <!--subscribed topic-->
+</include>
+
+
+
+</launch>

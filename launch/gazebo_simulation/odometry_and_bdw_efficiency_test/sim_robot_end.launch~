@@ -1,0 +1,65 @@
+<launch>
+<!--
+This file is used in conjunction with sim_client_end.launch to test data throttle and topic tools nodelets.
+-->
+
+
+<!--sim_world-->
+
+<arg name="in_env" default="$(find proxemics_anytimerrts)/maps/gazebo_map/my_2nd_test_map.world"/>
+<arg name="map_file" default="$(find proxemics_anytimerrts)/maps/gazebo_map/new_sim_map/new_sim_map.yaml" />
+
+<!-- ********* Gazebo & Rviz ********* -->
+<include file="$(find simulation_tobot)/beebot_control/launch/beebot_control.launch">
+  <arg name="world_file" value="$(arg in_env)" />
+  <arg name="rvizconfig" value="$(find proxemics_anytimerrts)/launch/rviz_config/rviz_config.rviz" />
+</include>
+
+<!-- ********* Adding tf frame ******* -->
+<node pkg="tf" type="static_transform_publisher" name="base_footprint_broadcaster" args="0 0 -0.065 0 0 0 /base_link /base_footprint 100" />
+
+<!-- ******** map_server *******-->
+<node name="map_server" type="map_server" pkg="map_server" 
+      args="$(arg map_file)" />
+
+<!-- ******** Localization (Pose estimate) Comment out either i.a, or i.b. *************-->
+<node pkg="fake_localization" type="fake_localization" name="fake_localization" >
+  <remap from="base_pose_ground_truth" to="/beebot_diff_drive_controller/odom" />
+</node>
+
+
+
+
+
+
+<!-- ********* Data throttle ********* -->
+<arg name="laser_th_rate" default="1" />
+<arg name="rgb_th_rate" default="5" />
+<arg name="depth_th_rate" default="5" />
+<arg name="cam_info_th_rate" default="5" />
+<arg name="odom_th_rate" default="5" />
+
+
+<node pkg="topic_tools" type="throttle" name="laser_throttle" 
+      args="messages /beebot/laser/scan 
+            $(arg laser_th_rate) 
+            /scan_throttled" />
+<node pkg="topic_tools" type="throttle" name="rgb_image_throttle" 
+      args="messages /camera/rgb/image_raw/theora 
+            $(arg rgb_th_rate) 
+            /rgb_image_theora_throttled" />
+<node pkg="topic_tools" type="throttle" name="depth_image_throttle"
+      args="messages /camera/depth/image_raw 
+            $(arg depth_th_rate) 
+            /depth_throttled" />
+<node pkg="topic_tools" type="throttle" name="cam_info_throttle"
+      args="messages /camera/rgb/camera_info
+            $(arg cam_info_th_rate)
+            /cam_info_throttled" />
+<node pkg="topic_tools" type="throttle" name="odom_throttle"
+      args="messages /beebot_diff_drive_controller/odom
+            $(arg odom_th_rate)
+            /odom_throttled" />
+
+
+</launch>

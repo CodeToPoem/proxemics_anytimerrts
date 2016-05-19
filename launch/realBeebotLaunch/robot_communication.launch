@@ -1,0 +1,69 @@
+<launch>
+
+<arg name="laser_th_rate"      default="1" />
+<arg name="rgb_th_rate"        default="5" />
+<arg name="depth_th_rate"      default="5" />
+<arg name="cam_info_th_rate"   default="5" />
+<arg name="odom_th_rate"       default="5" />
+<arg name="pointcloud_th_rate" default="5" />
+ 
+<arg name="scan_in"            default="/scan" />
+<arg name="scan_out_th"        default="/scan_throttled" />
+<arg name="rgb_theora_in"      default="camera/rgb/image_rect_color/theora" />
+<arg name="rgb_out_theora_th"  default="/rgb_image_throttled/theora" />
+<arg name="rgb_in"             default="/camera/rgb/image_rect_color" />
+<arg name="rgb_out_th"         default="/rgb_image_throttled" />
+<arg name="depth_in"           default="/camera/depth/image_rect_raw" />
+<arg name="depth_out_th"       default="/depth_throttled" />
+<arg name="depth_compress_in"  default="/camera/depth/image_rect_raw/compresedDepth" />
+<arg name="depth_compress_out_th" default="/depth_throttled/compressedDepth" />
+<arg name="camInfo_in"         default="/camera/rgb/camera_info" />
+<arg name="camInfo_out_th"     default="/cam_info_throttled" />
+<!--<arg name="odom_in"            default="/odom" />
+<arg name="odom_out_th"        default="/odom_throttled" />-->
+<arg name="rgbd_in"            default="/camera/depth_registered/points"/>
+<arg name="rgbd_out_th"        default="/pointclouds_throttled"/>
+
+<arg name="cmd_vel_in"         default="/cmd_vel_th" />
+<arg name="cmd_vel_relay"      default="//cmd_vel_th_relay" />
+
+<!-- ********* Data throttle ********* -->
+<node pkg="topic_tools" type="throttle" name="laser_throttle" 
+      args="messages $(arg scan_in) 
+            $(arg laser_th_rate) 
+            $(arg scan_out_th)" />
+<node pkg="topic_tools" type="throttle" name="rgb_image_theora_throttle" 
+      args="messages $(arg rgb_theora_in) 
+            $(arg rgb_th_rate) 
+            $(arg rgb_out_theora_th)" />
+<node pkg="topic_tools" type="throttle" name="rgb_image_throttle" 
+      args="messages $(arg rgb_in) 
+            $(arg rgb_th_rate) 
+            $(arg rgb_out_th)" />
+<node pkg="topic_tools" type="throttle" name="depth_image_compress_throttle"
+      args="messages $(arg depth_compress_in) 
+            $(arg depth_th_rate) 
+            $(arg depth_compress_out_th)" />
+<node pkg="topic_tools" type="throttle" name="depth_image_throttle"
+      args="messages $(arg depth_in) 
+            $(arg depth_th_rate) 
+            $(arg depth_out_th)" />
+<node pkg="topic_tools" type="throttle" name="cam_info_throttle"
+      args="messages $(arg camInfo_in)
+            $(arg cam_info_th_rate)
+            $(arg camInfo_out_th)" />
+<!--<node pkg="topic_tools" type="throttle" name="odom_throttle"
+      args="messages $(arg odom_in)
+            $(arg odom_th_rate)
+            $(arg odom_out_th)" />-->
+<node pkg="topic_tools" type="throttle" name="pointcloud_throttle"
+      args="messages $(arg rgbd_in)
+            $(arg odom_th_rate)
+            $(arg rgbd_out_th)" />
+
+<!--********** Relay************-->
+<node name="cmd_vel_relay" type="relay" pkg="topic_tools" 
+      args="$(arg cmd_vel_in) $(arg cmd_vel_relay)"/>
+
+
+</launch>

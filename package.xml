@@ -25,6 +25,7 @@
   <build_depend>std_msgs</build_depend>
   <build_depend>visualization_msgs</build_depend>
   <build_depend>cmake_modules</build_depend>
+  <build_depend>global_planner</build_depend>
 
   <run_depend>costmap_2d</run_depend>
   <run_depend>dynamic_reconfigure</run_depend>
@@ -40,8 +41,8 @@
   <run_depend>std_msgs</run_depend>
   <run_depend>visualization_msgs</run_depend>
   <run_depend>cmake_modules</run_depend>
+  <run_depend>global_planner</run_depend>
 
-  <!-- The export tag contains other, unspecified, tags -->
   <export>
      <nav_core plugin="${prefix}/proxemics_anytimerrts_plugin.xml" />
   </export>

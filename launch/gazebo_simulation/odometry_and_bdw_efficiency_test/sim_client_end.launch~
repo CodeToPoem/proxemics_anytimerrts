@@ -1,0 +1,17 @@
+<launch>
+
+<!-- ******** Relay *********** -->
+<!--Visualization and SLAM nodes use same data, so just subscribe once and relay messages -->
+<node name="odom_relay" type="relay" pkg="topic_tools" args="/odom_throttled /odom_relay" />
+
+<node name="scan_relay" type="relay" pkg="topic_tools" args="/scan_throttled /scan_relay" />
+
+<node name="camera_info_relay" type="relay" pkg="topic_tools" args="/cam_info_throttled /camera/data_throttled_camera_info_relay" />
+
+<!--<node name="republish_rgb" type="republish" pkg="image_transport" args="theora in:=/rgb_image_throttled raw out:=/camera/data_throttled_image_relay" />-->
+<node name="republish_rgb" type="republish" pkg="image_transport" args="in:=/rgb_image_throttled out:=/camera/data_throttled_image_relay" />
+
+<!--<node name="republish_depth" type="republish" pkg="image_transport" args="compressedDepth in:=/depth_throttled raw out:=/camera/data_throttled_image_depth_relay" />-->
+<node name="republish_depth" type="republish" pkg="image_transport" args="in:=/depth_throttled out:=/camera/data_throttled_image_depth_relay" />
+
+</launch>

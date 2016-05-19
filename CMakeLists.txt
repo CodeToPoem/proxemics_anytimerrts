@@ -2,6 +2,8 @@ cmake_minimum_required(VERSION 2.8.3)
 project(proxemics_anytimerrts)
 
 SET(CMAKE_BUILD_TYPE Release)
+
+ADD_DEFINITIONS(-std=c++0x) # C++ 11 is required
 set(CMAKE_CXX_FLAGS "-std=c++0x ${CMAKE_CXX_FLAGS}")
 
 find_package(catkin REQUIRED COMPONENTS
@@ -16,6 +18,8 @@ find_package(catkin REQUIRED COMPONENTS
   roscpp
   tf
   visualization_msgs
+     global_planner
+  std_msgs
 )
 
 find_package(cmake_modules REQUIRED)
@@ -45,7 +49,6 @@ FIND_PACKAGE(Boost REQUIRED)
 
 catkin_package(
   INCLUDE_DIRS include
-  LIBRARIES ${PROJECT_NAME}
 
   CATKIN_DEPENDS
     geometry_msgs
@@ -56,6 +59,7 @@ catkin_package(
     std_msgs
     tf
     visualization_msgs
+           global_planner
     costmap_2d
     pluginlib
 
@@ -67,6 +71,7 @@ catkin_package(
 include_directories(
   include
   ${catkin_INCLUDE_DIRS}
+  ${Eigen_INCLUDE_DIRS}
   ${CMAKE_CURRENT_SOURCE_DIR}/include/
   ${CMAKE_CURRENT_SOURCE_DIR}/src/
   ${CMAKE_CURRENT_SOURCE_DIR}
@@ -80,18 +85,21 @@ set(SOCNAV
     include/${PROJECT_NAME}/state_discretizer.h
     include/${PROJECT_NAME}/trajectory_rollout.h
     include/${PROJECT_NAME}/hasher.h
-#    include/${PROJECT_NAME}/Path.h
+
     include/${PROJECT_NAME}/cost_manager.h
     include/${PROJECT_NAME}/dynamic_costmap.h
+    include/${PROJECT_NAME}/dynamic_layers.h
+    include/${PROJECT_NAME}/costmap_model.h
+    include/${PROJECT_NAME}/world_model.h
    )
 set(SOURCES_RRT
-#    src/
+
      include/${PROJECT_NAME}/anytimerrts_planner.h
+
    )
 set(SOURCES
     src/thetastar_leading_rrt.cpp
-    include/${PROJECT_NAME}/thetastar_leading_rrt.h 
-    include/${PROJECT_NAME}/costmap_model.cpp 
+    include/${PROJECT_NAME}/thetastar_leading_rrt.h  
     include/${PROJECT_NAME}/trajectory.cpp 
     include/${PROJECT_NAME}/grid.cpp 
     include/${PROJECT_NAME}/cell.cpp    
@@ -116,7 +124,7 @@ add_library(
     ${SOCNAV}
 )
 
-add_dependencies(${PROJECT_NAME} ${PROJECT_NAME}_gencpp)
+add_dependencies(${PROJECT_NAME} nav_msgs_gencpp)
 
 add_dependencies(${PROJECT_NAME} ${PROJECT_NAME}_gencfg ${catkin_EXPORTED_TARGETS})
 
