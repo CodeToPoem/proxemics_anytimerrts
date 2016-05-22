@@ -23,12 +23,7 @@
 
 
   <!--******* Safety Controller ******* -->
-  <node name="safety_operator" pkg="nav2d_operator" type="operator">
-     <remap from="scan" to="/beebot/laser/scan"/>
-     <remap from="cmd_vel" to="cmd_vel_mux/cmd_vel_safety" />
-     <rosparam file="$(find proxemics_anytimerrts)/launch/gazebo_simulation/move_base/nav2d_operator_param.yaml"/>
-     <rosparam file="$(find proxemics_anytimerrts)/launch/gazebo_simulation/move_base/nav2d_operator_local_costmap.yaml" ns="local_map" />
-  </node>
+  <!--TODO-->
 
    <!-- ****Velocity Smoother (just regulate the overall output from cmd_vel_mux) ***** -->
   <node pkg="nodelet" type="nodelet" name="$(arg smoother_node_name)"
