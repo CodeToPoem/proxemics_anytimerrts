@@ -9,7 +9,15 @@
    <node pkg="tf" type="static_transform_publisher" name="base_footprint_broadcaster" args="0 0 -0.065 0 0 0 /base_link /base_footprint 100" />
 
    <!-- ****** launch motor driver ************* -->
-   <include file="$(find tobotdrivers)/launch/TobotDriver.launch"/>
+   <!--<include file="$(find tobotdrivers)/launch/TobotDriver.launch"/>-->
+   <arg name="robot_cfg" default="$(find simulation_tobot)/beebot_control/config/beebot_control.yaml"/>
+   <rosparam file="$(arg robot_cfg)" command="load" />  <!--load driver parameters-->
+   <node name="beebot_controller_spawner" 
+         pkg="controller_manager" 
+         type="spawner"
+         args="beebot_joint_state_controller
+          beebot_diff_drive_controller
+          --shutdown-timeout 3"/>
 
    <!--******* turn on laser range finder ******* -->
    <node pkg="hokuyo_node" type="hokuyo_node" name="hokuyo_node">
