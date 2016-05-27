@@ -24,7 +24,7 @@ Elasic band Local planner: eband_local_planner/EBandPlannerROS
 -->
 
 <arg name="global_planner" default="anytimeRRTs/AnytimeRRTsROS"/>
-<arg name="local_planner" default="eband_local_planner/EBandPlannerROS" />
+<arg name="local_planner" default="teb_local_planner/TebLocalPlannerROS" />
 
 <!--<arg name="in_odom" default="/beebot_diff_drive_controller/odom" />-->
 <arg name="in_odom" default="/odometry/filtered" />

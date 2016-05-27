@@ -43,3 +43,7 @@ plugins:
  -
    name: social_compliance
    type: "social_compliance_layer::SocialComplianceLayer"   
+
+ -
+   name: proxemic_layer
+   type: "social_navigation_layers::ProxemicLayer"

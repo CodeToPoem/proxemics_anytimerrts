@@ -31,8 +31,14 @@ plugins:
    name: inflater 
    type: "costmap_2d::InflationLayer"
 
+ -
+   name: proxemic_layer
+   type: "social_navigation_layers::ProxemicLayer"
+
 # -
 #   name: social_compliance
-#   type: "social_compliance_layer::SocialComplianceLayer"   
+#   type: "social_compliance_layer::SocialComplianceLayer"  
+
+ 
 
 

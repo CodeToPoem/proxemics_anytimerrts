@@ -16,7 +16,7 @@ footprint: [[0.50, 0.50], [0.50, -0.50], [-0.50, -0.50], [-0.50, 0.50] ]
 # NOTE!! that including obstacles it may happen that in narrow corridors echos from the laser scanner may appear as obstacles!
 # Not needed anyway cause using the static map layer
 obstacles:
-     observation_sources: /beebot/laser/scan 
+     observation_sources: scan 
      scan: 
        data_type: LaserScan
        topic: /beebot/laser/scan
@@ -28,7 +28,7 @@ obstacles:
      enabled: true
      
 inflater:   
-     observation_sources: /beebot/laser/scan 
+     observation_sources: scan 
      scan: 
         data_type: LaserScan
         topic: /beebot/laser/scan 
@@ -43,6 +43,15 @@ social_compliance:
    goal_topic: /move_base_simple/goal
    people_topic: /spencer/perception/tracked_persons #filtered_by_distance
    group_topic: /spencer/perception/tracked_groups
+
+proxemic_layer:
+    enabled: true    #default: true
+    cutoff: 10.0     #default: 10.0
+    amplitude: 77.0  #default: 77.0
+    covariance: 0.25 #default: 0.25
+    factor: 5.0      #default: 5.0
+    keep_time: 0.75  #default: 0.75 
+       
         
 #social_compliance:
 #    observation_sources: /spencer/perception/tracked_persons_filtered_by_distance /spencer/perception/tracked_groups
