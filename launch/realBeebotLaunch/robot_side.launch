@@ -20,7 +20,7 @@
    <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher"
          respawn="false" output="screen">
    </node>
-   <node name="iceira_diff_ros_control" type="iceira_diff_ros_control" pkg="iceira_diff_ros_control" output="screen" />
+   <node name="iceira_diff_ros_control" type="iceira_diff_ros_control" pkg="iceira_diff_ros_control" />
 
    <!--******* turn on laser range finder ******* -->
    <node pkg="hokuyo_node" type="hokuyo_node" name="hokuyo_node">
