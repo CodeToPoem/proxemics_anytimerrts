@@ -1,8 +1,4 @@
 <launch>
-   <!-- ******* launch robot tf frames ******* -->
-   <!--<include file="$(find proxemics_anytimerrts)/launch/my_start_tf_test.launch" />-->
-
-
    <!-- ********* Run a static transform between /base_link and /base_footprint needed for SLAM ********* -->
    <node pkg="tf" type="static_transform_publisher" name="base_footprint_broadcaster" args="0 0 -0.065 0 0 0 /base_link /base_footprint 100" />
 
@@ -104,7 +100,7 @@
 
 <!--********* ekf sensor fusion ******** -->
 <include file="$(find proxemics_anytimerrts)/launch/realBeebotLaunch/real_ekf_estimation.launch" >
-    <arg name="wh_odom" value="/odom" />
+    <arg name="wh_odom" value="/iceira_diff_diff_drive_controller/odom" />
 </include>
 
 
