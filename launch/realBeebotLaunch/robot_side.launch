@@ -113,22 +113,22 @@
 <!--**********trajectory planner ***************-->
 <!--
 Global planners:
-Dijkstra: (blank, default)
-AD*: SBPLLatticePlanner
-ADRRT*: anytimeRRTs/AnytimeRRTsROS
-Social Aware ADRRT*: proxemics_anytimerrts/ProxemicsAnytimeRRTs
-lattice_planner (A*): lattice_planner/TBPlanner
+Dijkstra:                         (blank, default)
+AD*:                              SBPLLatticePlanner
+ADRRT*:                           anytimeRRTs/AnytimeRRTsROS
+Social Aware ADRRT*:              proxemics_anytimerrts/ProxemicsAnytimeRRTs
+lattice_planner (A*):             lattice_planner/TBPlanner
 
 Local Planners:
-Dynamic Window Algorithm: dwa_local_planner/DWAPlannerROS
-path follower: path_executer/PathFollower
-Timed Elastic Band: teb_local_planner/TebLocalPlannerROS
-Pose follower: pose_follower/PoseFollower
-Time path follower: path_executer/PathFollower
+Dynamic Window Algorithm:         dwa_local_planner/DWAPlannerROS
+Timed Elastic Band(Not on Hydro)  teb_local_planner/TebLocalPlannerROS
+Pose follower:                    pose_follower/PoseFollower
+Time path follower:               path_executer/PathFollower
+Elastic Band Local Planner:       eband_local_planner/EBandPlannerROS
 -->
 
 <arg name="global_planner" default="anytimeRRTs/AnytimeRRTsROS"/>
-<arg name="local_planner" default="teb_local_planner/TebLocalPlannerROS" />
+<arg name="local_planner" default="eband_local_planner/EBandPlannerROS" />
 
 <!--<remap from="/odom" to="/odom_th_relay" />-->
 
