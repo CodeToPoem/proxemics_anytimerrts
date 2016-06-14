@@ -169,10 +169,10 @@ Time path follower: path_executer/PathFollower
 <!-- ******** Velocity Regulator with safety measure ***** -->
 <include file="$(find proxemics_anytimerrts)/launch/gazebo_simulation/move_base/kobuki_controller_system.launch" >
   <!--Velocity Smoother's settings-->
-  <arg name="raw_cmd_vel_topic"     value="cmd_vel_mux/output"/>                      <!--overall pu topic: related to cmd_vel_mux's published topic -->
-  <arg name="smooth_cmd_vel_topic"  value="/cmd_vel"/>                  <!--publish topic-->
-  <arg name="robot_cmd_vel_topic"   value="cmd_vel_mux/output"/>                      <!--subscribed topic-->
-  <arg name="odom_topic"            value="/odometry/filtered"/>                          <!--subscribed topic-->
+  <arg name="raw_cmd_vel_topic"     value="cmd_vel_mux/output"/>                           <!--overall topic: related to cmd_vel_mux's published topic -->
+  <arg name="smooth_cmd_vel_topic"  value="/iceira_diff_diff_drive_controller/cmd_vel"/>   <!--publish topic-->
+  <arg name="robot_cmd_vel_topic"   value="cmd_vel_mux/output"/>                           <!--subscribed topic-->
+  <arg name="odom_topic"            value="/odometry/filtered"/>                           <!--subscribed topic-->
 </include>
 
 
