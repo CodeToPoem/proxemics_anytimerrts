@@ -1,34 +1,35 @@
 <launch>
-   <arg name="teleop" default="false"/>
-
    <!-- ******* launch robot tf frames ******* -->
-   <include file="$(find proxemics_anytimerrts)/launch/my_start_tf_test.launch" />
+   <!--<include file="$(find proxemics_anytimerrts)/launch/my_start_tf_test.launch" />-->
 
 
    <!-- ********* Run a static transform between /base_link and /base_footprint needed for SLAM ********* -->
    <node pkg="tf" type="static_transform_publisher" name="base_footprint_broadcaster" args="0 0 -0.065 0 0 0 /base_link /base_footprint 100" />
 
    <!-- ****** launch motor driver ************* -->
+   <!--Archaic motor driver-->
    <!--<include file="$(find tobotdrivers)/launch/TobotDriver.launch"/>-->
-   <arg name="robot_cfg" default="$(find simulation_tobot)/beebot_control/config/beebot_control.yaml"/>
-   <rosparam file="$(arg robot_cfg)" command="load" />  <!--load driver parameters-->
-   <node name="beebot_controller_spawner" 
-         pkg="controller_manager" 
-         type="spawner"
-         args="beebot_joint_state_controller
-          beebot_diff_drive_controller
-          --shutdown-timeout 3"/>
+   
+   <!--Willie's differential driver-->
+   <!--Use your own URDF model-->
+   <arg name="bbot_cmd_vel" default="/iceira_diff_diff_drive_controller/cmd_vel" />
+   <arg name="model" default="$(find iceira_diff_ros_control)/urdf/iceira_diff.xacro"/>
+   <param name="robot_description" command="$(find xacro)/xacro.py $(arg model)" />
+   <rosparam command="load" file="$(find iceira_diff_ros_control)/config/iceira_diff_control.yaml" />
+   <!--Spawn Controller-->
+   <node name="iceira_diff_controller_spawner" pkg="controller_manager" type="spawner"
+         args="iceira_diff_joint_state_controller
+          iceira_diff_diff_drive_controller"/>
+   <!--Publish robot state-->
+   <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher"
+         respawn="false" output="screen">
+   </node>
+   <node name="iceira_diff_ros_control" type="iceira_diff_ros_control" pkg="iceira_diff_ros_control" output="screen" />
 
    <!--******* turn on laser range finder ******* -->
    <node pkg="hokuyo_node" type="hokuyo_node" name="hokuyo_node">
        <param name="frame_id" type="string" value="hokuyo_link" />
    </node>
-
-
-   <!-- ******* Turn on teleoperation on keyboard ******* -->
-   <group if="$(arg teleop)">
-       <node pkg="teleop_twist_keyboard" type="teleop_twist_keyboard.py" name="teleop_twist_keyboard"/>
-   </group>
         
    <!-- ******** Turn on Xtion ************ -->
    <include file="$(find openni2_launch)/launch/openni2.launch"/>
@@ -130,8 +131,8 @@ Pose follower: pose_follower/PoseFollower
 Time path follower: path_executer/PathFollower
 -->
 
-<arg name="global_planner" default="SBPLLatticePlanner"/>
-<arg name="local_planner" default="pose_follower/PoseFollower" />
+<arg name="global_planner" default="anytimeRRTs/AnytimeRRTsROS"/>
+<arg name="local_planner" default="teb_local_planner/TebLocalPlannerROS" />
 
 <!--<remap from="/odom" to="/odom_th_relay" />-->
 

@@ -89,8 +89,9 @@ Time path follower: path_executer/PathFollower
 -->
 
 <!--Auxiliary teleop-->
+   <arg name="tel_vel" default="/iceira_diff_diff_drive_controller/cmd_vel"/>
    <node pkg="teleop_twist_keyboard" type="teleop_twist_keyboard.py" name="teleop_twist_keyboard">
-     <remap from="/cmd_vel" to="/cmd_vel_mux/key_cmd_vel" />
+     <remap from="/cmd_vel" to="$(arg tel_vel)" />
    </node>
 
 <!-- ******* Optional: Octomap ******-->
