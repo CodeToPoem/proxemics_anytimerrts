@@ -23,8 +23,8 @@ obstacles:
        sensor_frame: /hokuyo_link 
        marking: true 
        clearing: true 
-     obstacle_range: 30.0
-     raytrace_range: 30.0
+     obstacle_range: 2.5   # originally 30.0
+     raytrace_range: 3.0   #originally 30.0
      enabled: true
      
 inflater:   
@@ -36,7 +36,7 @@ inflater:
         marking: true 
         clearing: true 
         map_type: costmap
-     inflation_radius: 0.8
+     inflation_radius: 0.8  #originally 0.8
      enabled: true
 
 social_compliance:
@@ -44,13 +44,13 @@ social_compliance:
    people_topic: /spencer/perception/tracked_persons #filtered_by_distance
    group_topic: /spencer/perception/tracked_groups
 
-proxemic_layer:
-    enabled: true    #default: true
-    cutoff: 10.0     #default: 10.0
-    amplitude: 77.0  #default: 77.0
-    covariance: 0.25 #default: 0.25
-    factor: 5.0      #default: 5.0
-    keep_time: 0.75  #default: 0.75 
+#proxemic_layer:
+#    enabled: true    #default: true
+#    cutoff: 10.0     #default: 10.0
+#    amplitude: 77.0  #default: 77.0
+#    covariance: 0.25 #default: 0.25
+#    factor: 5.0      #default: 5.0
+#    keep_time: 0.75  #default: 0.75 
        
         
 #social_compliance:

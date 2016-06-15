@@ -19,24 +19,24 @@ obstacles:
      observation_sources: scan 
      scan: 
        data_type: LaserScan
-       topic: /scan_th_relay
+       topic: /scan
        sensor_frame: /hokuyo_link 
        marking: true 
        clearing: true 
-     obstacle_range: 20.0
-     raytrace_range: 20.0
+     obstacle_range: 2.5  # default=20.0
+     raytrace_range: 20.0  # default=20.0
      enabled: true
      
 inflater:   
      observation_sources: scan 
      scan: 
         data_type: LaserScan
-        topic: /scan_th_relay 
+        topic: /scan 
         sensor_frame: /hokuyo_link 
         marking: true 
         clearing: true 
         map_type: costmap
-     inflation_radius: 1.0
+     inflation_radius: 0.8  #default=1.0
      enabled: true
 
 social_compliance:

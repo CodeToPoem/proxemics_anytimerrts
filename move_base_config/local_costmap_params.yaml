@@ -20,7 +20,7 @@ local_costmap:
 
   #static_map: true
 
-  
+  lethal_cost_threshold: 100
 
   origin_x: 0.0
   origin_y: 0.0
@@ -44,6 +44,6 @@ plugins:
    name: social_compliance
    type: "social_compliance_layer::SocialComplianceLayer"   
 
- -
-   name: proxemic_layer
-   type: "social_navigation_layers::ProxemicLayer"
+ #-
+ #   name: proxemic_layer
+ #   type: "social_navigation_layers::ProxemicLayer"
