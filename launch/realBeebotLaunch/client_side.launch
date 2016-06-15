@@ -78,7 +78,7 @@ Time path follower: path_executer/PathFollower
 
 
 <!--**********laser people detection *****-->
-<!--
+
 <include file="$(find proxemics_anytimerrts)/launch/gazebo_simulation/people_detection/laser_people_detector.launch" >
   <arg name="scan_topic" value="/scan_th_relay" />
 </include>
@@ -86,7 +86,7 @@ Time path follower: path_executer/PathFollower
 <include file="$(find proxemics_anytimerrts)/launch/gazebo_simulation/people_detection/people_tracking.launch" />
 
 <include file="$(find proxemics_anytimerrts)/launch/gazebo_simulation/people_detection/group_tracking.launch" />
--->
+
 
 <!--Auxiliary teleop-->
    <arg name="tel_vel" default="/iceira_diff_diff_drive_controller/cmd_vel"/>
