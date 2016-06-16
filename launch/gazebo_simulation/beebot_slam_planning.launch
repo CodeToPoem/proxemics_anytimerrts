@@ -104,6 +104,13 @@ Elasic band Local planner: eband_local_planner/EBandPlannerROS
   <arg name="odom_topic"            value="$(arg in_odom)"/>                          <!--subscribed topic-->
 </include>
 
+<!--********* Range Proximity Safety Controller ***********-->
+<include file="$(find range_proximity_safety_controller)/launch/proximity_range_safety_controller_node.launch" >
+  <arg name="scan"     value="/beebot/laser/scan" />
+  <arg name="cmd_vel"  value="/cmd_vel_mux/cmd_vel_safety" />
+</include>
+
+
 <!-- ******** constant velocity prediction node ********** -->
 <!-- FIXME Yet to be re-filled in
   <node name="constant_velocity_prediction" pkg="people_prediction" type="constant_velocity_prediction" />
