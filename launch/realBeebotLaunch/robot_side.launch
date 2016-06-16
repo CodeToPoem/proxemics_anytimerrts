@@ -105,6 +105,11 @@
 
 
 
+<!--********* Range Proximity Safety Controller ***********-->
+<include file="$(find range_proximity_safety_controller)/launch/proximity_range_safety_controller_node.launch" >
+  <arg name="scan"     value="/scan" />
+  <arg name="cmd_vel"  value="/cmd_vel_mux/cmd_vel_safety" />
+</include>
 
 
 
@@ -154,7 +159,6 @@ Elastic Band Local Planner:       eband_local_planner/EBandPlannerROS
 <remap from="/laser/scan" to="/scan" />
 <include file="$(find teb_local_planner)/launch/move_base.launch" />
 -->
-
 
 
 
